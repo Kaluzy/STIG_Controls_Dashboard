@@ -38,6 +38,7 @@ This project is aligned to the Notion roadmap, the architecture guidance, and th
 - `docs/CONTROL_CENTER_PRD.md`: product requirements for turning the app into a control lifecycle system
 - `docs/DATA_SCHEMA.md`: professional control, wave, test, owner, and decision record shapes
 - `docs/BUILD_ROADMAP_V1_V3.md`: phased implementation roadmap from current app to team-ready platform
+- `docs/DEPLOYMENT_PATHS.md`: GitHub Pages and Proxmox deployment strategy
 - `docs/ROADMAP_ALIGNMENT.md`: implementation rules derived from Notion
 - `docs/PROJECT_CHARTER.md`: scope and operating model
 - `docs/SCRIPT_VALIDATION.md`: scan-backed script validation
@@ -53,6 +54,12 @@ Preferred:
 
 - `node server.js`
 - open `http://localhost:3085`
+
+Static published option:
+
+- GitHub Pages via `.github/workflows/deploy-pages.yml`
+- expected URL after Pages is enabled:
+  - `https://kaluzy.github.io/STIG_Controls_Dashboard/`
 
 Fallback:
 

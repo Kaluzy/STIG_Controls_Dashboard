@@ -64,13 +64,18 @@ git push -u origin main
 If you only want the app to render as a static page:
 
 1. push to GitHub
-2. enable GitHub Pages
-3. publish from the root or `/docs` branch/folder depending on your repo setup
+2. add the Pages workflow
+3. set the Pages source to `GitHub Actions` if GitHub does not do it automatically
+4. let the workflow publish the static bundle
 
 Result:
 
 - the HTML renders
 - local shared save does not use `server.js`
+
+Workflow file:
+
+- `.github/workflows/deploy-pages.yml`
 
 ## Team-ready hosted option
 
@@ -93,6 +98,10 @@ Result:
 - rendered app
 - shared state via local JSON file
 - simple internal collaboration
+
+Review document:
+
+- `docs/DEPLOYMENT_PATHS.md`
 
 ## Suggested next deployment improvement
 
