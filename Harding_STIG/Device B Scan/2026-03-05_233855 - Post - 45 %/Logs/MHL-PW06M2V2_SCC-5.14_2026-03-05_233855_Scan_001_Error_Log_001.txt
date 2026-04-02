@@ -1,0 +1,186 @@
+SCC - 5.14 on host MHL-PW06M2V2 running Microsoft Windows 11 Enterprise 25H2 (AMD64 Family 25 Model 80 Stepping 0)
+
+    Time	 Level	Message
+
+23:38:57	WARN	The starting path '%ProgramData%\regid.1986-12.com.adobe' given to search on the filesystem is not relevant as a starting path
+	   Target System  :     MHL-PW06M2V2
+	   Stream Name :        Adobe_Acrobat_Pro_DC_Continuous_STIG
+	   SCAP Stream:         Adobe_Acrobat_Pro_DC_Continuous_STIG
+	   Profile ID:          xccdf_mil.disa.stig_profile_MAC-1_Classified
+	   Definition ID:       oval:mil.disa.stig.acrobatpro:def:1
+	   Test ID:             oval:mil.disa.stig.ind:tst:10000007
+	   Object ID:           oval:mil.disa.stig.ind:obj:10000004
+
+23:38:59	WARN	
+Manual Question Auto-Answer file for Google_Chrome_Current_Windows, version: 002.011.015 was not found in:
+C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Completed_Files\
+
+	All manual checks will be marked as 'Not Reviewed'.
+
+	* For CSCC Command Line Usage: Manual Question Auto-Answer templates for DISA STIG manual
+	checks can be found in:C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Templates\
+* For SCC GUI Usage:  Manual Question Auto-Answer results for DISA STIG manual checks can
+	be created by clicking on the 'Manual Questions' button in 'Content Details'
+
+	   Target System  :     MHL-PW06M2V2
+	   Stream Name :        Google_Chrome_Current_Windows
+	   SCAP Stream:         Google_Chrome_Current_Windows
+	   Profile ID:          xccdf_mil.disa.stig_profile_MAC-1_Classified
+	   Definition ID:       oval:mil.disa.stig.chrome:def:2
+	   Test ID:             oval:mil.disa.stig.chrome:tst:203
+	   State ID:            oval:mil.disa.stig.chrome:ste:200
+
+23:39:04	WARN	
+Manual Question Auto-Answer file for IE_11_STIG, version: 002.008.015 was not found in:
+C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Completed_Files\
+
+	All manual checks will be marked as 'Not Reviewed'.
+
+	* For CSCC Command Line Usage: Manual Question Auto-Answer templates for DISA STIG manual
+	checks can be found in:C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Templates\
+* For SCC GUI Usage:  Manual Question Auto-Answer results for DISA STIG manual checks can
+	be created by clicking on the 'Manual Questions' button in 'Content Details'
+
+	   Target System  :     MHL-PW06M2V2
+	   Stream Name :        IE_11_STIG
+	   SCAP Stream:         IE_11_STIG
+	   Profile ID:          xccdf_mil.disa.fso_profile_MAC-1_Classified
+	   Definition ID:       oval:mil.disa.fso.ie:def:18343
+	   Test ID:             oval:mil.disa.fso.ie:tst:87142
+	   State ID:            oval:mil.disa.fso.ie:ste:24230
+
+23:39:22	WARN	
+Manual Question Auto-Answer file for Microsoft_Windows_11_STIG, version: 002.007.016 was not found in:
+C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Completed_Files\
+
+	All manual checks will be marked as 'Not Reviewed'.
+
+	* For CSCC Command Line Usage: Manual Question Auto-Answer templates for DISA STIG manual
+	checks can be found in:C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Templates\
+* For SCC GUI Usage:  Manual Question Auto-Answer results for DISA STIG manual checks can
+	be created by clicking on the 'Manual Questions' button in 'Content Details'
+
+	   Target System  :     MHL-PW06M2V2
+	   Stream Name :        Microsoft_Windows_11_STIG
+	   SCAP Stream:         Microsoft_Windows_11_STIG
+	   Profile ID:          xccdf_mil.disa.stig_profile_MAC-1_Classified
+	   Definition ID:       oval:mil.disa.stig.windows11:def:1
+	   Test ID:             oval:mil.disa.stig.win:tst:10000001
+	   State ID:            oval:mil.disa.stig.win:ste:10000001
+
+23:41:43	WARN	
+Manual Question Auto-Answer file for MOZ_Firefox_Windows, version: 006.007.012 was not found in:
+C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Completed_Files\
+
+	All manual checks will be marked as 'Not Reviewed'.
+
+	* For CSCC Command Line Usage: Manual Question Auto-Answer templates for DISA STIG manual
+	checks can be found in:C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Templates\
+* For SCC GUI Usage:  Manual Question Auto-Answer results for DISA STIG manual checks can
+	be created by clicking on the 'Manual Questions' button in 'Content Details'
+
+	   Target System  :     MHL-PW06M2V2
+	   Stream Name :        MOZ_Firefox_Windows
+	   SCAP Stream:         MOZ_Firefox_Windows
+	   Profile ID:          xccdf_mil.disa.stig_profile_MAC-1_Classified
+	   Definition ID:       oval:mil.disa.stig.firefox.windows:def:1
+	   Test ID:             oval:mil.disa.stig.firefox.windows:tst:101
+	   Object ID:           oval:mil.disa.stig.firefox.windows:obj:103
+	   Object ID:           oval:mil.disa.stig.firefox.windows:obj:101
+
+23:41:47	WARN	
+Manual Question Auto-Answer file for MS_Defender_Antivirus, version: 002.007.013 was not found in:
+C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Completed_Files\
+
+	All manual checks will be marked as 'Not Reviewed'.
+
+	* For CSCC Command Line Usage: Manual Question Auto-Answer templates for DISA STIG manual
+	checks can be found in:C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Templates\
+* For SCC GUI Usage:  Manual Question Auto-Answer results for DISA STIG manual checks can
+	be created by clicking on the 'Manual Questions' button in 'Content Details'
+
+	   Target System  :     MHL-PW06M2V2
+	   Stream Name :        MS_Defender_Antivirus
+	   SCAP Stream:         MS_Defender_Antivirus
+	   Profile ID:          xccdf_mil.disa.stig_profile_MAC-1_Classified
+	   Definition ID:       oval:mil.disa.stig.windowsdefav:def:1
+	   Test ID:             oval:mil.disa.stig.win:tst:10000018
+	   State ID:            oval:mil.disa.stig.win:ste:10000018
+
+23:41:52	WARN	
+Manual Question Auto-Answer file for MS_Dot_Net_Framework, version: 002.007.013 was not found in:
+C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Completed_Files\
+
+	All manual checks will be marked as 'Not Reviewed'.
+
+	* For CSCC Command Line Usage: Manual Question Auto-Answer templates for DISA STIG manual
+	checks can be found in:C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Templates\
+* For SCC GUI Usage:  Manual Question Auto-Answer results for DISA STIG manual checks can
+	be created by clicking on the 'Manual Questions' button in 'Content Details'
+
+	   Target System  :     MHL-PW06M2V2
+	   Stream Name :        MS_Dot_Net_Framework
+	   SCAP Stream:         MS_Dot_Net_Framework
+	   Profile ID:          xccdf_mil.disa.fso_profile_MAC-1_Classified
+	   Definition ID:       oval:mil.disa.fso.dotnet:def:1
+	   Test ID:             oval:mil.disa.fso.dotnet:tst:101
+	   State ID:            oval:mil.disa.fso.dotnet:ste:100
+
+23:43:04	WARN	
+Manual Question Auto-Answer file for MS_Edge_STIG, version: 002.004.014 was not found in:
+C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Completed_Files\
+
+	All manual checks will be marked as 'Not Reviewed'.
+
+	* For CSCC Command Line Usage: Manual Question Auto-Answer templates for DISA STIG manual
+	checks can be found in:C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Templates\
+* For SCC GUI Usage:  Manual Question Auto-Answer results for DISA STIG manual checks can
+	be created by clicking on the 'Manual Questions' button in 'Content Details'
+
+	   Target System  :     MHL-PW06M2V2
+	   Stream Name :        MS_Edge_STIG
+	   SCAP Stream:         MS_Edge_STIG
+	   Profile ID:          xccdf_mil.disa.stig_profile_MAC-1_Classified
+	   Definition ID:       oval:mil.disa.stig.edge:def:1
+	   Test ID:             oval:mil.disa.stig.edge:tst:101
+	   Object ID:           oval:mil.disa.stig.edge:obj:103
+	   Object ID:           oval:mil.disa.stig.edge:obj:101
+
+23:43:11	WARN	
+Manual Question Auto-Answer file for MS_Office_365_ProPlus_STIG, version: 003.007.009 was not found in:
+C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Completed_Files\
+
+	All manual checks will be marked as 'Not Reviewed'.
+
+	* For CSCC Command Line Usage: Manual Question Auto-Answer templates for DISA STIG manual
+	checks can be found in:C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Templates\
+* For SCC GUI Usage:  Manual Question Auto-Answer results for DISA STIG manual checks can
+	be created by clicking on the 'Manual Questions' button in 'Content Details'
+
+	   Target System  :     MHL-PW06M2V2
+	   Stream Name :        MS_Office_365_ProPlus_STIG
+	   SCAP Stream:         MS_Office_365_ProPlus_STIG
+	   Profile ID:          xccdf_mil.disa.stig_profile_MAC-1_Classified
+	   Definition ID:       oval:mil.disa.stig.office365:def:1
+	   Test ID:             oval:mil.disa.stig.win:tst:10000010
+	   State ID:            oval:mil.disa.stig.win:ste:10000005
+
+23:43:30	WARN	
+Manual Question Auto-Answer file for Windows_Firewall_with_Advanced_Security, version: 002.003.012 was not found in:
+C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Completed_Files\
+
+	All manual checks will be marked as 'Not Reviewed'.
+
+	* For CSCC Command Line Usage: Manual Question Auto-Answer templates for DISA STIG manual
+	checks can be found in:C:\Program Files\SCAP Compliance Checker 5.14\Resources\Content\Manual_Questions\Templates\
+* For SCC GUI Usage:  Manual Question Auto-Answer results for DISA STIG manual checks can
+	be created by clicking on the 'Manual Questions' button in 'Content Details'
+
+	   Target System  :     MHL-PW06M2V2
+	   Stream Name :        Windows_Firewall_with_Advanced_Security
+	   SCAP Stream:         Windows_Firewall_with_Advanced_Security
+	   Profile ID:          xccdf_mil.disa.fso_profile_MAC-1_Classified
+	   Definition ID:       oval:mil.disa.stig.windowsdeffw:def:1
+	   Test ID:             oval:mil.disa.stig.win:tst:10000017
+	   State ID:            oval:mil.disa.stig.win:ste:10000017
+

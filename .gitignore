@@ -1,0 +1,26 @@
+# Node / local runtime
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local shared state and generated exports
+data/shared-infosec-state.json
+exports/
+
+# Temporary workbook extraction folders
+tmp_wb/
+tmp_wb_status/
+tmp_wb_verify/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+
+# Local environment files
+.env
+.env.*
+

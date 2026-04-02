@@ -1,0 +1,3064 @@
+<!DOCTYPE html>
+<html lang="en" class="min-h-full overflow-x-hidden">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STIG Pilot Control Center — Device B Pilot</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════════════════ */
+:root {
+  --navy:     #1E2761;
+  --navy-dk:  #141A48;
+  --teal:     #0B7A8C;
+  --teal-lt:  #E3F4F6;
+  --amber:    #B86E00;
+  --amber-lt: #FFF4E0;
+  --red:      #9B2335;
+  --red-lt:   #FAEAEA;
+  --green:    #1A6630;
+  --green-lt: #E4F4E8;
+  --bg:       #F2F5FA;
+  --panel:    #FFFFFF;
+  --border:   #D6DCE8;
+  --muted:    #6B7A96;
+  --text:     #1A2040;
+  --sidebar-w: 230px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET / BASE
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════════════ */
+.app-header {
+  background: var(--navy);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 58px;
+  flex-shrink: 0;
+  border-bottom: 3px solid var(--teal);
+  z-index: 200;
+}
+.app-header h1 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+.app-header .sub { font-size: 11px; color: #CADCFC; margin-top: 1px; }
+
+.hero-stats {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.hero-stat {
+  text-align: center;
+  min-width: 58px;
+}
+.hero-stat .n { font-size: 22px; font-weight: 800; line-height: 1; }
+.hero-stat .l { font-size: 10px; text-transform: uppercase; letter-spacing: .7px; color: #CADCFC; margin-top: 2px; }
+.hero-stat.t1 .n { color: #4DD9EF; }
+.hero-stat.t2 .n { color: #FFD580; }
+.hero-stat.t3 .n { color: #FF8FA3; }
+.hero-stat.hi .n { color: #FF6B6B; }
+.hero-stat.ops .n { color: #80E6A0; }
+.hero-divider { width: 1px; height: 30px; background: rgba(255,255,255,.18); }
+
+/* ═══════════════════════════════════════════════════════════
+   LAYOUT SHELL
+═══════════════════════════════════════════════════════════ */
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: calc(100vh - 58px);
+  margin-top: 58px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════════════════════ */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--navy-dk);
+  color: #CBD5EE;
+  overflow-y: auto;
+  padding: 16px 14px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 2px; }
+
+.sb-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(203,213,238,.45);
+  margin-bottom: 8px;
+}
+
+/* Tier mini-cards */
+.tier-cards { display: flex; flex-direction: column; gap: 7px; }
+.tier-card {
+  background: rgba(255,255,255,.06);
+  border-radius: 7px;
+  padding: 10px 12px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: background .15s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tier-card:hover { background: rgba(255,255,255,.10); }
+.tier-card.active { background: rgba(255,255,255,.12); }
+.tier-card.t1 { border-left-color: #4DD9EF; }
+.tier-card.t2 { border-left-color: #FFD580; }
+.tier-card.t3 { border-left-color: #FF8FA3; }
+.tier-card .tc-left .name { font-size: 12px; font-weight: 600; color: #EEF2FF; }
+.tier-card .tc-left .desc { font-size: 10px; color: rgba(203,213,238,.55); margin-top: 1px; }
+.tier-card .tc-count { font-size: 18px; font-weight: 800; }
+.tier-card.t1 .tc-count { color: #4DD9EF; }
+.tier-card.t2 .tc-count { color: #FFD580; }
+.tier-card.t3 .tc-count { color: #FF8FA3; }
+
+/* Category bars */
+.cat-bars { display: flex; flex-direction: column; gap: 6px; }
+.cat-bar-row { display: flex; align-items: center; gap: 7px; cursor: pointer; }
+.cat-bar-row:hover .cat-bar-label { color: #EEF2FF; }
+.cat-bar-label { font-size: 10px; color: rgba(203,213,238,.6); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-bar-track { width: 54px; height: 5px; background: rgba(255,255,255,.1); border-radius: 3px; flex-shrink: 0; }
+.cat-bar-fill { height: 100%; border-radius: 3px; }
+.cat-bar-num { font-size: 10px; color: rgba(203,213,238,.5); width: 14px; text-align: right; flex-shrink: 0; }
+
+/* Filters */
+.filter-stack { display: flex; flex-direction: column; gap: 8px; }
+.filter-row label { display: block; font-size: 9px; text-transform: uppercase; letter-spacing: .7px; color: rgba(203,213,238,.4); margin-bottom: 4px; }
+.filter-row select, .filter-row input {
+  width: 100%;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 5px;
+  color: #EEF2FF;
+  padding: 6px 9px;
+  font-size: 12px;
+  outline: none;
+  appearance: none;
+}
+.filter-row select:focus, .filter-row input:focus { border-color: var(--teal); }
+.filter-row select option { background: #1A2040; }
+
+.toggle-row { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.toggle-row span { font-size: 11px; color: rgba(203,213,238,.7); }
+.toggle { width: 30px; height: 16px; background: rgba(255,255,255,.15); border-radius: 8px; position: relative; transition: background .2s; flex-shrink: 0; }
+.toggle.on { background: var(--teal); }
+.toggle::after { content:''; position:absolute; left:2px; top:2px; width:12px; height:12px; border-radius:6px; background:#fff; transition: left .2s; }
+.toggle.on::after { left:16px; }
+
+.reset-link { font-size: 10px; color: rgba(203,213,238,.4); cursor: pointer; text-decoration: underline; text-align: right; }
+.reset-link:hover { color: rgba(203,213,238,.8); }
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN AREA
+═══════════════════════════════════════════════════════════ */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* View tabs */
+.view-tabs {
+  display: flex;
+  gap: 0;
+  padding: 12px 20px 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.view-tab {
+  padding: 7px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  transition: color .15s;
+  letter-spacing: .3px;
+}
+.view-tab:hover { color: var(--navy); }
+.view-tab.active { color: var(--navy); border-bottom-color: var(--teal); }
+
+/* Result bar */
+.result-bar {
+  padding: 6px 20px;
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--bg);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.view-explainer {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 20px 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,.75), rgba(242,245,250,.95));
+  border-bottom: 1px solid var(--border);
+}
+
+.view-explainer .title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.view-explainer .copy {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-top: 3px;
+}
+
+.view-explainer .pill {
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #EEF3FA;
+  color: var(--navy);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.intel-strip {
+  padding: 14px 20px 12px;
+  background: linear-gradient(180deg, rgba(11,122,140,.05), rgba(30,39,97,.02));
+  border-bottom: 1px solid var(--border);
+}
+
+.intel-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 14px;
+}
+
+.intel-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 6px 16px rgba(20,26,72,.04);
+}
+
+.intel-kicker {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .9px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.intel-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.intel-copy {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.scan-rail {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.scan-step {
+  border-radius: 9px;
+  padding: 10px 11px;
+  background: #F7F9FC;
+  border: 1px solid var(--border);
+}
+
+.scan-step .scan-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.scan-step .scan-score {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1;
+}
+
+.scan-step .scan-meta {
+  margin-top: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.intel-tags,
+.app-score-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.intel-tag {
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .4px;
+}
+
+.intel-tag.pilot { background: #E3F4F6; color: var(--teal); }
+.intel-tag.proven { background: #E4F4E8; color: var(--green); }
+.intel-tag.gap { background: #FFF4E0; color: var(--amber); }
+.intel-tag.risk { background: #FAEAEA; color: var(--red); }
+
+.app-score {
+  min-width: 108px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px;
+  background: #FBFCFE;
+}
+
+.app-score .app-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.app-score .app-range {
+  font-size: 14px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.app-score .app-note {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+.app-score.proven .app-range { color: var(--green); }
+.app-score.gap .app-range { color: var(--amber); }
+.app-score.failed .app-range { color: var(--red); }
+
+.pilot-shell {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 16px;
+  align-items: start;
+  height: 100%;
+  min-height: 0;
+}
+
+.pilot-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  min-height: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.pilot-panel h3 {
+  font-size: 15px;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.pilot-sub {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.pilot-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.pilot-stat {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px;
+  background: #FAFBFD;
+}
+
+.pilot-stat strong {
+  display: block;
+  font-size: 21px;
+  color: var(--navy);
+  line-height: 1;
+}
+
+.pilot-stat span {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--muted);
+}
+
+.pilot-lanes {
+  display: grid;
+  gap: 12px;
+}
+
+.pilot-lane {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.pilot-lane-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+}
+
+.pilot-lane-head.proven { background: #E4F4E8; color: var(--green); }
+.pilot-lane-head.partial { background: #FFF4E0; color: var(--amber); }
+.pilot-lane-head.failed { background: #FAEAEA; color: var(--red); }
+
+.pilot-lane-body {
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  background: #FFF;
+}
+
+.pilot-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 12px;
+  cursor: pointer;
+  background: #FBFCFE;
+}
+
+.pilot-card:hover {
+  box-shadow: 0 4px 14px rgba(30,39,97,.08);
+}
+
+.pilot-card-id {
+  font-size: 10px;
+  font-family: monospace;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.pilot-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.4;
+}
+
+.pilot-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.pilot-card-note {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.pilot-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.pilot-action {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  background: #FBFCFE;
+}
+
+.pilot-action .kicker {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.pilot-action .title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.pilot-action .copy {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.infosec-shell {
+  display: grid;
+  grid-template-columns: 1.08fr .92fr;
+  gap: 16px;
+  align-items: start;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+}
+
+.infosec-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.infosec-panel:first-child {
+  overflow: hidden;
+}
+
+.infosec-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.infosec-head h3 {
+  font-size: 15px;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.infosec-head .stamp {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.infosec-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.infosec-toolbar {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #FFFFFF, #F8FBFF);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.infosec-stat {
+  border-radius: 9px;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  background: #FAFBFD;
+}
+
+.infosec-stat strong {
+  display: block;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--navy);
+}
+
+.infosec-stat span {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--muted);
+}
+
+.infosec-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.infosec-filters input,
+.infosec-filters select {
+  min-width: 150px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text);
+  background: #fff;
+}
+
+.infosec-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.action-btn {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--navy);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.action-btn.primary {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+
+.action-btn:hover {
+  box-shadow: 0 4px 14px rgba(20,26,72,.08);
+}
+
+.action-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.sync-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #EEF3FA;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.infosec-owner-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.owner-card {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 11px 12px;
+  background: #FBFCFE;
+}
+
+.owner-card .name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.owner-card .meta {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.infosec-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.infosec-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.infosec-item-head {
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #FBFCFE, #F5F8FC);
+  border-bottom: 1px solid var(--border);
+}
+
+.infosec-item-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.infosec-item-id {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: monospace;
+  margin-bottom: 5px;
+}
+
+.infosec-item-title {
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.infosec-item-copy {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.infosec-item-subids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 7px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.subid-chip {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #F2F5FA;
+}
+
+.infosec-item-body {
+  padding: 12px 14px 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.infosec-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.infosec-field label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.infosec-field .value {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.infosec-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.infosec-controls select,
+.infosec-note textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text);
+  background: #fff;
+}
+
+.infosec-note textarea {
+  min-height: 66px;
+  resize: vertical;
+}
+
+.info-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .35px;
+}
+
+.sev-high { background: #FAEAEA; color: var(--red); }
+.sev-medium { background: #FFF4E0; color: var(--amber); }
+.sev-low { background: #F0F3F9; color: #55627A; }
+
+.prio-high { color: var(--red); }
+.prio-medium { color: var(--amber); }
+.prio-low { color: var(--green); }
+
+.infosec-queue {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.infosec-callout {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--teal);
+  border-radius: 8px;
+  background: #FBFCFE;
+  padding: 11px 12px;
+}
+
+.infosec-callout .kicker {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.infosec-callout .title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.infosec-callout .copy {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.readiness-shell {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 16px;
+}
+
+.readiness-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.readiness-panel h3 {
+  font-size: 15px;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.readiness-stat {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: #FAFBFD;
+}
+
+.readiness-stat strong {
+  display: block;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--navy);
+}
+
+.readiness-stat span {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--muted);
+}
+
+.stage-board {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.stage-lane {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.stage-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #F7F9FC;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--navy);
+}
+
+.stage-body {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+}
+
+.stage-card {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 11px;
+  background: #FBFCFE;
+}
+
+.stage-card .id {
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.stage-card .title {
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.45;
+}
+
+.stage-card .copy {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.stage-card .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+
+.pager-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pager-note {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.team-shell {
+  display: grid;
+  gap: 14px;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  min-height: 0;
+  overflow: visible;
+  padding-right: 4px;
+}
+
+.team-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 8px 26px rgba(20,26,72,.05);
+}
+
+.team-panel h3 {
+  font-size: 14px;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.team-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.team-card-list {
+  display: grid;
+  gap: 9px;
+}
+
+.team-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.team-section-note {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.team-pager {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.team-mini {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 11px;
+  background: #FBFCFE;
+}
+
+.team-mini .id {
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.team-mini .title {
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.45;
+}
+
+.team-mini .copy {
+  margin-top: 7px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.view-content { overflow: visible; padding: 16px 20px 40px; display: flex; flex-direction: column; min-height: 0; }
+.view-content::-webkit-scrollbar { width: 5px; }
+.view-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════════════════════
+   BOARD VIEW
+═══════════════════════════════════════════════════════════ */
+.board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; min-height: 0; overflow: visible; }
+.board > div { min-height: 0; max-height: 70vh; overflow-y: auto; padding-right: 4px; }
+.board-col-header {
+  border-radius: 7px 7px 0 0;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.board-col-header .status-pill {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.col-t1 .board-col-header { background: linear-gradient(135deg, #0B7A8C 0%, #0D94A8 100%); color: #fff; }
+.col-t2 .board-col-header { background: linear-gradient(135deg, #1E4A8C 0%, #2558A8 100%); color: #fff; }
+.col-t3 .board-col-header { background: linear-gradient(135deg, #9B2335 0%, #B83040 100%); color: #fff; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 13px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: box-shadow .15s, transform .1s;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.col-t1 .card::before { background: var(--teal); }
+.col-t2 .card::before { background: #1E4A8C; }
+.col-t3 .card::before { background: var(--red); }
+.card:hover { box-shadow: 0 3px 12px rgba(30,39,97,.12); transform: translateY(-1px); }
+
+.card-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.35; margin-bottom: 6px; }
+.card-id { font-size: 10px; color: var(--muted); font-family: monospace; margin-bottom: 5px; }
+.card-cat { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 3px; margin-bottom: 7px; }
+.card-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+.card-meta { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  white-space: nowrap;
+}
+.imp-High       { background: #FDECEA; color: #8B1A1A; }
+.imp-Medium     { background: #FFF3DC; color: #7A5000; }
+.imp-Low        { background: #F0F4F8; color: #5F6B7C; }
+.fri-None       { background: #E4F4E8; color: #1A5C30; }
+.fri-Noticeable { background: #FFF3DC; color: #7A5000; }
+.fri-Disruptive { background: #FAEAEA; color: #8B1A1A; }
+.ops-true       { background: #E3F4F6; color: var(--teal); }
+.pilot          { background: #E3F4F6; color: var(--teal); }
+.proven         { background: #E4F4E8; color: var(--green); }
+.partial        { background: #FFF3DC; color: var(--amber); }
+.failed         { background: #FAEAEA; color: var(--red); }
+.pending        { background: #F0F3F9; color: #55627A; }
+
+.card-ops-flag {
+  position: absolute;
+  top: 8px; right: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--teal);
+  background: var(--teal-lt);
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: .4px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CATEGORY GROUP VIEW
+═══════════════════════════════════════════════════════════ */
+.cat-group { margin-bottom: 18px; }
+.cat-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: .2px;
+}
+.cat-group-header .cg-count {
+  font-size: 11px;
+  background: rgba(255,255,255,.22);
+  padding: 1px 7px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+.cat-group-header .cg-arrow { font-size: 11px; transition: transform .2s; }
+.cat-group-header.collapsed .cg-arrow { transform: rotate(-90deg); }
+
+.cat-group-body { display: flex; flex-direction: column; gap: 4px; padding-left: 4px; }
+.cat-group-body.collapsed { display: none; }
+
+.list-row {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 14px;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  transition: background .12s;
+}
+.list-row:hover { background: #F5F8FF; }
+.list-row.expanded { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; }
+
+.list-id { font-family: monospace; font-size: 10px; color: var(--muted); }
+.list-name { font-size: 12px; font-weight: 600; }
+.list-badges { display: flex; gap: 5px; justify-content: flex-end; flex-wrap: wrap; }
+
+.list-detail {
+  display: none;
+  background: #F8FAFF;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 12px 16px 14px 20px;
+  margin-bottom: 0;
+}
+.list-detail.open { display: block; }
+.detail-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; margin-top: 8px; }
+.detail-field label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); display: block; margin-bottom: 4px; }
+.detail-field .val { font-size: 12px; color: var(--text); }
+.detail-field .val.code {
+  font-family: monospace;
+  font-size: 11px;
+  background: #1A2040;
+  color: #A8D8E0;
+  padding: 7px 10px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  display: block;
+}
+.detail-field .val.note { font-style: italic; color: #444; font-size: 12px; }
+.detail-field .val.risk { font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════════════
+   MATRIX VIEW
+═══════════════════════════════════════════════════════════ */
+.matrix-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.matrix-title { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.matrix-sub { font-size: 11px; color: var(--muted); margin-bottom: 20px; }
+
+.matrix-chart {
+  position: relative;
+  width: 100%;
+  padding-top: 62%;  /* aspect ratio */
+}
+.matrix-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible; }
+
+/* axis labels */
+.axis-label { font-size: 10px; fill: #6B7A96; font-family: 'Segoe UI', Arial; }
+.grid-line { stroke: #E8EDF5; stroke-width: 1; }
+.zone-label { font-size: 9px; fill: rgba(107,122,150,.5); font-family: 'Segoe UI', Arial; font-style: italic; }
+
+.matrix-dot {
+  cursor: pointer;
+  transition: r .15s;
+}
+.matrix-dot:hover { stroke-width: 2; }
+.matrix-legend { display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
+.leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════════
+   DETAIL PANEL (slide-in)
+═══════════════════════════════════════════════════════════ */
+.detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20,26,72,.45);
+  z-index: 400;
+  display: none;
+  backdrop-filter: blur(2px);
+}
+.detail-overlay.open { display: block; }
+
+.detail-panel {
+  position: fixed;
+  top: 0; right: -480px; bottom: 0;
+  width: 460px;
+  background: #fff;
+  box-shadow: -8px 0 32px rgba(20,26,72,.18);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  transition: right .25s cubic-bezier(.4,0,.2,1);
+  overflow: hidden;
+}
+.detail-panel.open { right: 0; }
+
+.dp-header {
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.dp-tier { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+.dp-tier.t1 { color: var(--teal); }
+.dp-tier.t2 { color: #1E4A8C; }
+.dp-tier.t3 { color: var(--red); }
+.dp-name { font-size: 17px; font-weight: 700; color: var(--navy); line-height: 1.3; margin-bottom: 6px; }
+.dp-id { font-family: monospace; font-size: 11px; color: var(--muted); }
+.dp-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #F0F4F8;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+}
+.dp-close:hover { background: var(--border); }
+
+.dp-body { flex: 1; overflow-y: auto; padding: 18px 22px 24px; display: flex; flex-direction: column; gap: 16px; }
+.dp-body::-webkit-scrollbar { width: 4px; }
+.dp-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.dp-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.dp-code {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  background: #f0f4fa;
+  border: 1px solid #d0dae8;
+  border-radius: 6px;
+  padding: 8px 10px;
+  word-break: break-all;
+  color: #1a2a4a;
+  line-height: 1.6;
+}
+.gpo-val {
+  background: #f0f7f0;
+  border-color: #b8d4b8;
+  color: #1a3a1a;
+}
+.dp-field label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); display: block; margin-bottom: 5px; }
+.dp-field .dval { font-size: 13px; color: var(--text); line-height: 1.5; }
+.dp-field .dval.italic { font-style: italic; color: #444; }
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.evidence-cell {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  background: #FAFBFD;
+}
+.evidence-cell label {
+  display: block;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.evidence-cell .state {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.evidence-note {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.dp-field .dval.code-block {
+  font-family: monospace;
+  font-size: 11px;
+  background: #1A2040;
+  color: #A8D8E0;
+  padding: 10px 13px;
+  border-radius: 6px;
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.dp-field .dval.risk-val { font-weight: 600; }
+.dp-divider { height: 1px; background: var(--border); margin: 2px 0; }
+
+@media (max-width: 1100px) {
+  .intel-grid,
+  .board,
+  .evidence-grid,
+  .pilot-shell,
+  .pilot-summary,
+  .infosec-shell,
+  .infosec-summary,
+  .infosec-owner-grid,
+  .infosec-grid,
+  .infosec-controls,
+  .readiness-shell,
+  .readiness-grid,
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 880px) {
+  .sidebar { display: none; }
+  .app-header {
+    height: auto;
+    padding: 12px 14px;
+    gap: 12px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .scan-rail { grid-template-columns: 1fr; }
+  .hero-stats { flex-wrap: wrap; }
+}
+.ops-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--teal-lt);
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid #A8D8E0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════════════════════════ */
+.empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty .e-icon { font-size: 36px; margin-bottom: 10px; }
+.empty p { font-size: 14px; }
+
+/* ═══════════════════════════════════════════════════════════
+   SHELL OVERRIDES
+═══════════════════════════════════════════════════════════ */
+#viewContent > * {
+  min-height: 0;
+}
+
+.cat-scroll,
+.matrix-scroll {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.intel-strip,
+.view-tabs,
+.result-bar,
+.view-explainer {
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLLBAR GLOBAL
+═══════════════════════════════════════════════════════════ */
+*::-webkit-scrollbar { width: 5px; height: 5px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(107,122,150,.25); border-radius: 3px; }
+
+</style>
+</head>
+<body class="min-h-screen overflow-x-hidden bg-slate-100 text-slate-900 antialiased">
+
+<!-- ══════════ HEADER ══════════ -->
+<header class="app-header fixed inset-x-0 top-0 z-50 h-[58px] border-b border-slate-800/20 shadow-[0_10px_30px_rgba(15,23,42,0.18)]">
+  <div>
+    <div class="app-header h1" style="font-size:16px;font-weight:700;letter-spacing:.2px">STIG Pilot Control Center</div>
+    <div class="sub">One shared operating picture for pilot planning, validation, ownership, and rollout · April 1, 2026</div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat t1"><div class="n" id="hs-t1">11</div><div class="l">Tier 1</div></div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat t2"><div class="n" id="hs-t2">17</div><div class="l">Tier 2</div></div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat t3"><div class="n" id="hs-t3">7</div><div class="l">Tier 3</div></div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat hi"><div class="n" id="hs-hi">20</div><div class="l">High Impact</div></div>
+    <div class="hero-divider"></div>
+    <div class="hero-stat ops"><div class="n" id="hs-ops">28</div><div class="l">Ops Checklist</div></div>
+  </div>
+</header>
+
+<!-- ══════════ BODY ══════════ -->
+<div class="app-body min-h-[calc(100vh-58px)] overflow-hidden">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar min-h-0 overflow-y-auto border-r border-slate-800/10 shadow-[inset_-1px_0_0_rgba(255,255,255,0.04)]">
+
+    <div>
+      <div class="sb-section-label">Deployment Status</div>
+      <div class="tier-cards">
+        <div class="tier-card t1" onclick="setSidebarTier('Tier 1')">
+          <div class="tc-left">
+            <div class="name">Tier 1</div>
+            <div class="desc">Testing · ZERO friction</div>
+          </div>
+          <div class="tc-count">11</div>
+        </div>
+        <div class="tier-card t2" onclick="setSidebarTier('Tier 2')">
+          <div class="tc-left">
+            <div class="name">Tier 2</div>
+            <div class="desc">Planned · Low friction</div>
+          </div>
+          <div class="tc-count">17</div>
+        </div>
+        <div class="tier-card t3" onclick="setSidebarTier('Tier 3')">
+          <div class="tc-left">
+            <div class="name">Tier 3</div>
+            <div class="desc">Deferred · Review needed</div>
+          </div>
+          <div class="tc-count">7</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sb-section-label">By Category</div>
+      <div class="cat-bars" id="catBars"></div>
+    </div>
+
+    <div>
+      <div class="sb-section-label">Filters</div>
+      <div class="filter-stack">
+        <div class="filter-row">
+          <label>Search</label>
+          <input type="text" id="q" placeholder="Name, ID, notes…" oninput="render()">
+        </div>
+        <div class="filter-row">
+          <label>Tier</label>
+          <select id="fTier" onchange="render()">
+            <option value="">All Tiers</option>
+            <option>Tier 1</option>
+            <option>Tier 2</option>
+            <option>Tier 3</option>
+          </select>
+        </div>
+        <div class="filter-row">
+          <label>Category</label>
+          <select id="fCat" onchange="render()"><option value="">All Categories</option></select>
+        </div>
+        <div class="filter-row">
+          <label>Impact</label>
+          <select id="fImp" onchange="render()">
+            <option value="">Any Impact</option>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+        </div>
+        <div class="filter-row">
+          <label>Friction</label>
+          <select id="fFri" onchange="render()">
+            <option value="">Any Friction</option>
+            <option>None</option>
+            <option>Noticeable</option>
+            <option>Disruptive</option>
+          </select>
+        </div>
+        <div class="toggle-row" onclick="toggleOps()">
+          <div class="toggle" id="opsToggle"></div>
+          <span>Ops Checklist only</span>
+        </div>
+        <div class="toggle-row" onclick="togglePilot()">
+          <div class="toggle" id="pilotToggle"></div>
+          <span>Phase 1 QA pilot only</span>
+        </div>
+        <div class="filter-row">
+          <label>Validation</label>
+          <select id="fValidation" onchange="render()">
+            <option value="">Any validation state</option>
+            <option>Proven</option>
+            <option>Partial</option>
+            <option>Failed</option>
+            <option>Pending</option>
+          </select>
+        </div>
+        <div class="reset-link" onclick="resetAll()">↺ Reset all filters</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main min-w-0 flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+    <div class="intel-strip flex-none px-5 pt-5">
+      <div class="intel-grid">
+        <section class="intel-card">
+          <div class="intel-kicker">Command Center</div>
+          <div class="intel-title">Wave 1 decision view with Device B scan-backed proof</div>
+          <div class="intel-copy">
+            This control center treats the selected Windows 11 set as the shared operating surface, with the top high-risk
+            entries from <code>Win11_STIG_Pilot</code> acting as Wave 1 for Device B. The score moved from
+            <strong>36.76</strong> on March 5, 2026 to <strong>45.20</strong> later that day and <strong>51.20</strong> on April 1, 2026,
+            which gives leadership and engineering one view of what changed, what is proven, and what still blocks release readiness.
+          </div>
+          <div class="scan-rail">
+            <div class="scan-step">
+              <div class="scan-label">Pre Scan</div>
+              <div class="scan-score">36.76</div>
+              <div class="scan-meta">93 pass · 159 fail</div>
+            </div>
+            <div class="scan-step">
+              <div class="scan-label">Post Script 1</div>
+              <div class="scan-score">45.20</div>
+              <div class="scan-meta">113 pass · 137 fail</div>
+            </div>
+            <div class="scan-step">
+              <div class="scan-label">Post Script 2</div>
+              <div class="scan-score">51.20</div>
+              <div class="scan-meta">128 pass · 122 fail</div>
+            </div>
+          </div>
+          <div class="intel-tags">
+            <span class="intel-tag pilot">13-control Device B QA pilot</span>
+            <span class="intel-tag proven">Chrome and Edge script gains proven</span>
+            <span class="intel-tag gap">Firefox, Defender, .NET, Office need rework</span>
+            <span class="intel-tag risk">Flag V-253369 regression</span>
+          </div>
+        </section>
+        <section class="intel-card">
+          <div class="intel-kicker">Application Validation</div>
+          <div class="intel-copy">
+            Product hardening evidence is mixed. Chrome and Edge improved at the rule level. The remaining products either
+            did not move, were aimed at the wrong policy surface, or need additional settings beyond the current script.
+          </div>
+          <div class="app-score-grid">
+            <div class="app-score proven">
+              <div class="app-name">Chrome</div>
+              <div class="app-range">2.27 → 11.36</div>
+              <div class="app-note">4 targeted rules proven by SCC</div>
+            </div>
+            <div class="app-score proven">
+              <div class="app-name">Edge</div>
+              <div class="app-range">3.64 → 9.09</div>
+              <div class="app-note">3 targeted rules proven by SCC</div>
+            </div>
+            <div class="app-score failed">
+              <div class="app-name">Firefox</div>
+              <div class="app-range">3.03 → 3.03</div>
+              <div class="app-note">Policy surface mismatch remains</div>
+            </div>
+            <div class="app-score failed">
+              <div class="app-name">Defender</div>
+              <div class="app-range">23.88 → 23.88</div>
+              <div class="app-note">Runtime prefs not enough for STIG policy checks</div>
+            </div>
+            <div class="app-score gap">
+              <div class="app-name">.NET</div>
+              <div class="app-range">69.23 → 69.23</div>
+              <div class="app-note">TLS script incomplete</div>
+            </div>
+            <div class="app-score failed">
+              <div class="app-name">Office / IE</div>
+              <div class="app-range">Flat</div>
+              <div class="app-note">Wrong or missing policy paths</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="view-tabs sticky top-0 z-20 flex-none bg-slate-100/95 backdrop-blur">
+      <div class="view-tab active" data-view="board" onclick="switchView('board',this)">⬛ Command Center</div>
+      <div class="view-tab" data-view="pilot" onclick="switchView('pilot',this)">◫ Pilot Wave</div>
+      <div class="view-tab" data-view="infosec" onclick="switchView('infosec',this)">◪ Operations Backlog</div>
+      <div class="view-tab" data-view="readiness" onclick="switchView('readiness',this)">◬ Release Readiness</div>
+      <div class="view-tab" data-view="cat" onclick="switchView('cat',this)">☰ Control Library</div>
+      <div class="view-tab" data-view="matrix" onclick="switchView('matrix',this)">◎ Risk Matrix</div>
+    </div>
+    <div class="result-bar flex-none" id="resultBar">Showing all 35 controls</div>
+    <div class="view-explainer flex-none">
+      <div>
+        <div class="title" id="viewTitle">Command Center</div>
+        <div class="copy" id="viewCopy">This is the executive and engineering summary of the selected Windows 11 hardening set, with Device B evidence and pilot readiness.</div>
+      </div>
+      <div class="pill" id="viewPill">35 selected controls</div>
+    </div>
+
+    <div class="view-content min-h-0" id="viewContent"></div>
+  </div>
+</div>
+
+<!-- DETAIL OVERLAY + PANEL -->
+<div class="detail-overlay" id="overlay" onclick="closePanel()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-header" style="position:relative">
+    <button class="dp-close" onclick="closePanel()">✕</button>
+    <div class="dp-tier" id="dp-tier"></div>
+    <div class="dp-name" id="dp-name"></div>
+    <div class="dp-id" id="dp-id"></div>
+  </div>
+  <div class="dp-body" id="dp-body"></div>
+</div>
+
+<script src="./data/baseline-data.js"></script>
+<script>
+/* ══════════════════════════════════════
+   DATA
+══════════════════════════════════════ */
+const RAW_D = [
+  {id:"V-253358",name:"Disable WDigest",cat:"Auth & Crypto",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Stops plaintext creds in LSASS, safe everywhere.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest\\UseLogonCredential = 0",gpo:"Computer Config >> Admin Templates >> MS Security Guide >> WDigest Authentication = Disabled"},
+  {id:"V-253460",name:"Kerberos AES-only",cat:"Auth & Crypto",tier:"Tier 1",imp:"Medium",fri:"None",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Legacy support only needed for old DCs.",reg:"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters\\SupportedEncryptionTypes = 0x7ffffff8",gpo:"Computer Config >> Security Settings >> Local Policies >> Security Options >> Network security: Configure encryption types allowed for Kerberos"},
+  {id:"V-253285",name:"Disable PowerShell 2.0",cat:"PowerShell & Scripting",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Feature absent on Windows 11, SCC mis-detects. Treat as secure-by-absence to avoid recurring investigation.",reg:"Disable-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root",gpo:"Windows Features >> Uncheck PowerShell 2.0"},
+  {id:"V-253367",name:"Cmdline in process logs",cat:"Audit & Logging",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Include command line in process creation events for better forensics.",reg:"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit\\ProcessCreationIncludeCmdLine_Enabled = 1",gpo:"Computer Config >> Admin Templates >> System >> Audit Process Creation >> Include command line = Enabled"},
+  {id:"V-253414",name:"PS script block logging",cat:"PowerShell & Scripting",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Logs script content for PowerShell-based attacks.",reg:"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging\\EnableScriptBlockLogging = 1",gpo:"Computer Config >> Admin Templates >> Windows Components >> Windows PowerShell >> Turn on Script Block Logging = Enabled"},
+  {id:"V-253437",name:"Audit subcategories",cat:"Audit & Logging",tier:"Tier 1",imp:"Medium",fri:"None",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Foundation control for detailed auditing.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\SCENoApplyLegacyAuditPolicy = 1",gpo:"Computer Config >> Security Settings >> Local Policies >> Security Options >> Audit: Force audit policy subcategory settings = Enabled"},
+  {id:"V-253399",name:"Disable Game DVR",cat:"Apps & Features",tier:"Tier 1",imp:"Low",fri:"None",status:"Tested / Passed",risk:"Low",ops:true,notes:"No business use, removes OS game recording vector.",reg:"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\GameDVR\\AllowGameDVR = 0",gpo:"Computer Config >> Admin Templates >> Windows Components >> Windows Game Recording and Broadcasting = Disabled"},
+  {id:"V-268317",name:"Disable Copilot",cat:"Apps & Features",tier:"Tier 1",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Blocks MS cloud AI pipeline. On this build, may require registry-only enforcement, SCC compliance may lag behind actual state.",reg:"HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot\\TurnOffWindowsCopilot = 1",gpo:"User Config >> Admin Templates >> Windows Components >> Windows Copilot >> Turn off Windows Copilot = Enabled"},
+  {id:"V-253413",name:"Disable auto sign-in after restart",cat:"Account & Logon",tier:"Tier 1",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Requires user to log on after system-initiated restart.",reg:"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\DisableAutomaticRestartSignOn = 1",gpo:"Computer Config >> Admin Templates >> Windows Components >> Windows Logon Options >> Sign-in last user automatically after restart = Disabled"},
+  {id:"V-253354",name:"IPv4 source routing off",cat:"Network",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Prevents IP source routing attacks, feature is obsolete.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\DisableIPSourceRouting = 2",gpo:"Computer Config >> Admin Templates >> MSS (Legacy) >> Disable IP source routing"},
+  {id:"V-253353",name:"IPv6 source routing off",cat:"Network",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Same as IPv4 source routing for IPv6.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\DisableIPSourceRouting = 2",gpo:"Computer Config >> Admin Templates >> MSS (Legacy) >> Disable IPv6 source routing"},
+  {id:"V-253300",name:"Password history 24",cat:"Passwords",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Prevents simple password reuse, users will notice at change time.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Services\\Netlogon\\Parameters\\MaximumPasswordAge: Password History = 24",gpo:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Enforce password history = 24 passwords"},
+  {id:"V-253301",name:"Max password age ≤ 60 days",cat:"Passwords",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Forces periodic rotation, moderate UX impact.",reg:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Maximum password age = 60 days",gpo:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Maximum password age = 60 days"},
+  {id:"V-253302",name:"Min password age ≥ 1 day",cat:"Passwords",tier:"Tier 2",imp:"Low",fri:"Noticeable",status:"Tested / Passed",risk:"Low",ops:true,notes:"Blocks rapid cycling through password history.",reg:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Minimum password age = 1 day",gpo:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Minimum password age = 1 day"},
+  {id:"V-253303",name:"Min password length 14",cat:"Passwords",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Better brute-force resistance, training needed.",reg:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Minimum password length = 14",gpo:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Minimum password length = 14 characters"},
+  {id:"V-253297 / V-253299",name:"Account lockout policy",cat:"Account & Logon",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Lockout threshold/duration/reset tuned for security vs helpdesk.",reg:"Computer Config >> Security Settings >> Account Policies >> Account Lockout Policy >> Account lockout threshold = 3 | Computer Config >> Security Settings >> Account Policies >> Account Lockout Policy >> Account lockout duration = 15 min",gpo:"Computer Config >> Security Settings >> Account Policies >> Account Lockout Policy | Computer Config >> Security Settings >> Account Policies >> Account Lockout Policy >> Account lockout duration"},
+  {id:"V-253259 / V-253257",name:"BitLocker baseline (OS disk)",cat:"Device & Hardware",tier:"Tier 2",imp:"High",fri:"Noticeable",status:"Tested / Passed",risk:"High",ops:true,notes:"Protects data at rest on lost or stolen devices.",reg:"Require BitLocker on the OS drive with TPM-backed protection and recovery escrow. For enterprise durability, prefer policy-backed BitLocker enforcement over one-time local commands.",gpo:"Intune Endpoint Security >> Disk encryption policy | or Computer Config >> Administrative Templates >> Windows Components >> BitLocker Drive Encryption >> Operating System Drives"},
+  {id:"V-253370",name:"Credential Guard",cat:"Device & Hardware",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Blocks many credential theft methods, generally low side effects.",reg:"Enable virtualization-based security and Credential Guard using a policy-backed device security baseline. Treat this as proven only when the configuration is enforced and revalidated after reboot.",gpo:"Intune Settings Catalog >> Device Guard / Credential Guard | or Computer Config >> Administrative Templates >> System >> Device Guard >> Turn On Virtualization Based Security"},
+  {id:"V-253371 / V-253426",name:"VBS / DMA protection",cat:"Device & Hardware",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Hardens kernel and DMA paths.",reg:"Enable virtualization-based security with Secure Boot support and require Kernel DMA protection where supported. Keep the VBS portion flagged until the regression is resolved by rescan.",gpo:"Computer Config >> Administrative Templates >> System >> Device Guard >> Turn On Virtualization Based Security | Device security baseline for Kernel DMA Protection"},
+  {id:"V-253306 / V-253317",name:"Audit: logon/logoff",cat:"Audit & Logging",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Core audit events for investigations.",reg:"Enable Advanced Audit Policy subcategories for logon, logoff, special logon, and credential validation events. Keep this in policy, not script-only local auditpol commands.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Advanced Audit Policy Configuration >> Audit Policies >> Logon/Logoff and Account Logon"},
+  {id:"V-253319 / V-253324 / V-278926 / V-278931",name:"Audit: object access & file system",cat:"Audit & Logging",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Tracks file share, removable storage and file system events.",reg:"Enable object-access auditing for file share, removable storage, and file system events through Advanced Audit Policy. Pair this with clear storage and support guidance because the logs will grow faster.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Advanced Audit Policy Configuration >> Audit Policies >> Object Access"},
+  {id:"V-253325 / V-253329 / V-278932 / V-278933",name:"Audit: policy change & privilege use",cat:"Audit & Logging",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Shows admin and policy change activity.",reg:"Enable auditing for audit policy change, authorization policy change, and sensitive privilege use. This should be implemented through the Advanced Audit Policy surface so SCC sees the exact required subcategories.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Advanced Audit Policy Configuration >> Audit Policies >> Policy Change and Privilege Use"},
+  {id:"V-253330 / V-253336",name:"Audit: system events",cat:"Audit & Logging",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"System integrity and state changes.",reg:"Enable Advanced Audit Policy for system integrity, security state changes, and other system events. This is foundational evidence for QA and incident review.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Advanced Audit Policy Configuration >> Audit Policies >> System"},
+  {id:"V-253337 / V-253339",name:"Increase event log sizes",cat:"Audit & Logging",tier:"Tier 2",imp:"Medium",fri:"None",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Prevents important audit logs from rolling too quickly.",reg:"Set Application and System logs to at least 32768 KB and set the Security log to at least 1024000 KB. The current script used 32768 for all three, which is why this remains a real gap.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Event Log >> Maximum application log size / Maximum security log size / Maximum system log size"},
+  {id:"V-253392 / V-253393",name:"Telemetry reduction",cat:"Apps & Features",tier:"Tier 2",imp:"Medium",fri:"None",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Reduces telemetry/diagnostic data to minimum needed.",reg:"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection\\LimitEnhancedDiagnosticDataWindowsAnalytics = 1 | HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection\\AllowTelemetry = 1",gpo:"Computer Config >> Admin Templates >> Windows Components >> Data Collection >> Limit Enhanced diagnostic data = Enabled | Computer Config >> Admin Templates >> Windows Components >> Data Collection >> Allow Diagnostic Data = Enabled, Diagnostic data off"},
+  {id:"V-253390 / V-253425 / V-253384",name:"Disable consumer experiences",cat:"Apps & Features",tier:"Tier 2",imp:"Low",fri:"None",status:"Tested / Passed",risk:"Low",ops:true,notes:"Cleans up consumer UX and third-party suggestions.",reg:"Disable consumer account suggestions, cloud consumer experiences, and non-business promotional content through policy-backed Windows experience settings.",gpo:"Computer Config >> Administrative Templates >> Windows Components >> Cloud Content and related Windows experience policies"},
+  {id:"V-253405 / V-253406",name:"Harden RDP & RPC",cat:"Remote Access",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Requires secure RPC/RDP, may affect legacy admin workflows.",reg:"Require secure RPC communication and high encryption for Remote Desktop Session Host. Validate legacy admin tools before broad rollout.",gpo:"Computer Config >> Administrative Templates >> Windows Components >> Remote Desktop Services >> Remote Desktop Session Host >> Security"},
+  {id:"V-253402 / V-253404",name:"Block saved RDP creds & drive mapping",cat:"Remote Access",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Improves RDP security and data leak posture.",reg:"Prevent saved credentials in the Remote Desktop client and block local drive redirection to reduce credential reuse and data transfer risk.",gpo:"Computer Config >> Administrative Templates >> Windows Components >> Remote Desktop Services >> Remote Desktop Connection Client and Remote Desktop Session Host >> Device and Resource Redirection"},
+  {id:"V-253466",name:"FIPS algorithms",cat:"Auth & Crypto",tier:"Tier 3",imp:"High",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"May break VPNs/legacy TLS, leadership decision after pilot.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\FIPSAlgorithmPolicy\\Enabled = 1",gpo:"Computer Config >> Security Settings >> Local Policies >> Security Options >> System cryptography: Use FIPS compliant algorithms = Enabled"},
+  {id:"V-253464 / V-253362",name:"Strict NTLM/SMB minimums",cat:"Auth & Crypto",tier:"Tier 3",imp:"High",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"Can impact legacy NAS / servers.",reg:"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\NetworkProvider\\HardenedPaths = RequireMutualAuthentication=1,RequireIntegrity=1",gpo:"Computer Config >> Admin Templates >> Network >> Network Provider >> Hardened UNC Paths"},
+  {id:"V-253471",name:"UAC auto-deny standard users",cat:"Account & Logon",tier:"Tier 3",imp:"High",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"Large behavior change for elevation, requires strong process.",reg:"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\ConsentPromptBehaviorUser = 0",gpo:"Computer Config >> Security Settings >> Local Policies >> Security Options >> UAC: Behavior of elevation prompt for standard users = Automatically deny"},
+  {id:"V-253444",name:"Aggressive inactivity lock (15 min)",cat:"Account & Logon",tier:"Tier 3",imp:"Medium",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"Users may be frequently locked, workflow dependent.",reg:"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\InactivityTimeoutSecs = 900",gpo:"Computer Config >> Security Settings >> Local Policies >> Security Options >> Interactive logon: Machine inactivity limit = 900"},
+  {id:"V-253260 / V-253261",name:"BitLocker PIN pre-boot",cat:"Device & Hardware",tier:"Tier 3",imp:"High",fri:"Disruptive",status:"Deferred",risk:"High",ops:false,notes:"Better pre-boot auth, but adds user steps at boot.",reg:"Require startup PIN with a minimum length of six digits for BitLocker-protected operating system drives. Keep deferred until user-impact and support readiness are accepted.",gpo:"Computer Config >> Administrative Templates >> Windows Components >> BitLocker Drive Encryption >> Operating System Drives >> Require additional authentication at startup and Configure minimum PIN length for startup"},
+  {id:"V-253491 / V-253495",name:"Strict deny logon rights",cat:"User Rights & Local Accounts",tier:"Tier 3",imp:"High",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"Can break services or admin workflows if mis-scoped.",reg:"Restrict deny-logon rights for highly privileged accounts on workstations only after service accounts, admin workflows, and emergency access paths are modeled.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Local Policies >> User Rights Assignment"},
+  {id:"V-253291 / V-253293",name:"Bluetooth restrictions",cat:"Device & Hardware",tier:"Tier 3",imp:"Medium",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"Can affect Bluetooth peripherals, evaluate by business role.",reg:"Disable Bluetooth or restrict discoverability and pairing behavior based on business role. Do not enforce broadly until the affected peripherals are known.",gpo:"Computer Config >> Administrative Templates >> Network >> Bluetooth or device-restriction policy via Intune Settings Catalog"}
+];
+
+const PILOT_IDS = new Set([
+  "V-253358",
+  "V-253285",
+  "V-253367",
+  "V-253414",
+  "V-253354",
+  "V-253353",
+  "V-253370",
+  "V-253371 / V-253426",
+  "V-253306 / V-253317",
+  "V-253319 / V-253324 / V-278926 / V-278931",
+  "V-253325 / V-253329 / V-278932 / V-278933",
+  "V-253330 / V-253336",
+  "V-253259 / V-253257"
+]);
+
+const CONTROL_META = {
+  "V-253358": { validation:"Proven", script:"Pre-pilot baseline / WDigest hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Improved in the first jump and is part of the Device B QA pilot." },
+  "V-253460": { validation:"Partial", script:"Not mapped in current batch set", pre36:"fail", post45:"pass", post51:"pass", evidence:"Pass state improved, but the current script set does not clearly own this change." },
+  "V-253285": { validation:"Partial", script:"No current batch; secure-by-absence interpretation", pre36:"fail", post45:"notapplicable", post51:"notapplicable", evidence:"Pilot sheet says passed, but SCC credits this as not applicable rather than pass." },
+  "V-253367": { validation:"Proven", script:"Existing registry hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Improved in the first jump and stayed compliant." },
+  "V-253414": { validation:"Proven", script:"Existing registry hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Improved in the first jump and stayed compliant." },
+  "V-253437": { validation:"Proven", script:"Preexisting local hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Foundation auditing control is scan-proven by the first jump." },
+  "V-253399": { validation:"Proven", script:"BATCH 5", pre36:"fail", post45:"pass", post51:"pass", evidence:"Game DVR hardening was credited in the first jump." },
+  "V-268317": { validation:"Proven", script:"Preexisting / registry-only hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Copilot moved to pass in the first jump." },
+  "V-253413": { validation:"Proven", script:"Preexisting / local hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Auto sign-in hardening is credited by SCC in the first jump." },
+  "V-253354": { validation:"Proven", script:"Preexisting / local hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"First-jump network hygiene control and part of the pilot set." },
+  "V-253353": { validation:"Proven", script:"Preexisting / local hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"First-jump IPv6 source-routing hardening and part of the pilot set." },
+  "V-253300": { validation:"Proven", script:"BATCH 1 PASSWORD POLICIES", pre36:"fail", post45:"fail", post51:"pass", evidence:"Moved only after the second remediation wave." },
+  "V-253301": { validation:"Proven", script:"BATCH 1 PASSWORD POLICIES", pre36:"fail", post45:"fail", post51:"pass", evidence:"Moved only after the second remediation wave." },
+  "V-253302": { validation:"Proven", script:"BATCH 1 PASSWORD POLICIES", pre36:"fail", post45:"fail", post51:"pass", evidence:"Moved only after the second remediation wave." },
+  "V-253303": { validation:"Failed", script:"BATCH 1 PASSWORD POLICIES", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"The script sets a local registry value, but the captured SCC evidence does not prove this control moved." },
+  "V-253297 / V-253299": { validation:"Partial", script:"BATCH 1 PASSWORD POLICIES", pre36:"unknown", post45:"unknown", post51:"partial", evidence:"Lockout settings are local-only in the current script and can be overwritten by domain policy." },
+  "V-253259 / V-253257": { validation:"Proven", script:"BATCH 2 BITLOCKER & HARDWARE SECURITY", pre36:"error", post45:"pass", post51:"pass", evidence:"BitLocker OS-disk protection is proven by the first jump and remains core pilot scope." },
+  "V-253370": { validation:"Partial", script:"BATCH 2 BITLOCKER & HARDWARE SECURITY", pre36:"pass", post45:"pass", post51:"pass", evidence:"Already passing in the baseline, so the script is not proven as the reason for compliance." },
+  "V-253371 / V-253426": { validation:"Partial", script:"BATCH 2 BITLOCKER & HARDWARE SECURITY", pre36:"partial", post45:"partial", post51:"mixed", evidence:"DMA protection improved by the final scan, but VBS platform-security evidence regressed elsewhere in the benchmark." },
+  "V-253306 / V-253317": { validation:"Proven", script:"BATCH 3 AUDIT LOGGING", pre36:"fail", post45:"fail", post51:"pass", evidence:"Audit logon events are proven by the second jump and are part of the pilot set." },
+  "V-253319 / V-253324 / V-278926 / V-278931": { validation:"Proven", script:"BATCH 3 AUDIT LOGGING", pre36:"fail", post45:"fail", post51:"pass", evidence:"Object access and removable-storage auditing moved in the second jump." },
+  "V-253325 / V-253329 / V-278932 / V-278933": { validation:"Proven", script:"BATCH 3 AUDIT LOGGING", pre36:"fail", post45:"fail", post51:"pass", evidence:"Policy-change and privilege-use auditing moved in the second jump." },
+  "V-253330 / V-253336": { validation:"Proven", script:"BATCH 3 AUDIT LOGGING", pre36:"fail", post45:"fail", post51:"pass", evidence:"System event auditing moved in the second jump." },
+  "V-253337 / V-253339": { validation:"Failed", script:"BATCH 3 AUDIT LOGGING", pre36:"fail", post45:"fail", post51:"fail", evidence:"The script sets all logs to 32768 KB, but the Security log STIG requires 1024000 KB, so SCC still fails it." },
+  "V-253392 / V-253393": { validation:"Proven", script:"BATCH 4 TELEMETRY & CONSUMER FEATURES", pre36:"fail", post45:"pass", post51:"pass", evidence:"Telemetry settings are credited in the first jump." },
+  "V-253390 / V-253425 / V-253384": { validation:"Partial", script:"BATCH 4 + BATCH 5", pre36:"fail", post45:"pass", post51:"pass", evidence:"Consumer experiences clearly improved, but the combined control bucket mixes multiple settings with different proof levels." },
+  "V-253405 / V-253406": { validation:"Proven", script:"BATCH 5 CONSUMER UX & RDP HARDENING", pre36:"fail", post45:"pass", post51:"pass", evidence:"Secure RPC and high encryption are proven by SCC in the first jump." },
+  "V-253402 / V-253404": { validation:"Partial", script:"BATCH 5 CONSUMER UX & RDP HARDENING", pre36:"fail", post45:"pass", post51:"pass", evidence:"Saved-credential blocking is proven, but the dashboard bundle does not exactly match every SCC rule identifier." },
+  "V-253466": { validation:"Pending", script:"Not in pilot scope", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"Deferred Tier 3 control. Do not implement before leadership approval." },
+  "V-253464 / V-253362": { validation:"Pending", script:"Not in pilot scope", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"Cross-team auth and SMB minimums remain deferred." },
+  "V-253471": { validation:"Pending", script:"Not in pilot scope", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"Disruptive Tier 3 control, deferred beyond pilot." },
+  "V-253444": { validation:"Pending", script:"Not in pilot scope", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"Usability-heavy Tier 3 control, deferred beyond pilot." },
+  "V-253260 / V-253261": { validation:"Pending", script:"Not in pilot scope", pre36:"fail", post45:"fail", post51:"fail", evidence:"Pre-boot PIN remains intentionally out of the balanced pilot." },
+  "V-253491 / V-253495": { validation:"Pending", script:"Not in pilot scope", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"Strict deny-logon rights should stay deferred until service impact is modeled." },
+  "V-253291 / V-253293": { validation:"Pending", script:"Not in pilot scope", pre36:"fail", post45:"fail", post51:"fail", evidence:"Bluetooth restrictions remain unresolved and outside the balanced pilot." }
+};
+
+const D = RAW_D.map(r => ({
+  ...r,
+  pilot: PILOT_IDS.has(r.id),
+  validation: "Pending",
+  script: "Not yet mapped",
+  pre36: "unknown",
+  post45: "unknown",
+  post51: "unknown",
+  evidence: "Needs SCC validation mapping.",
+  ...CONTROL_META[r.id]
+}));
+
+const BASELINE_FAILED = JSON.parse(String.raw`[{"VulnId":"WN11-00-000031","Severity":"high","Title":"Windows 11 systems must use a BitLocker PIN for pre-boot authentication."},{"VulnId":"WN11-00-000032","Severity":"medium","Title":"Windows 11 systems must use a BitLocker PIN with a minimum length of six digits for pre-boot authentication."},{"VulnId":"WN11-00-000090","Severity":"medium","Title":"Accounts must be configured to require password expiration."},{"VulnId":"WN11-00-000125","Severity":"medium","Title":"Copilot must be disabled for Windows 11."},{"VulnId":"WN11-00-000130","Severity":"medium","Title":"Software certificate installation files must be removed from Windows 11."},{"VulnId":"WN11-00-000150","Severity":"high","Title":"Structured Exception Handling Overwrite Protection (SEHOP) must be enabled."},{"VulnId":"WN11-00-000155","Severity":"medium","Title":"The Windows PowerShell 2.0 feature must be disabled on the system."},{"VulnId":"WN11-00-000175","Severity":"medium","Title":"The Secondary Logon service must be disabled on Windows 11."},{"VulnId":"WN11-00-000210","Severity":"medium","Title":"Bluetooth must be turned off unless approved by the organization."},{"VulnId":"WN11-00-000220","Severity":"medium","Title":"Bluetooth must be turned off when not in use."},{"VulnId":"WN11-00-000230","Severity":"medium","Title":"The system must notify the user when a Bluetooth device attempts to connect."},{"VulnId":"WN11-AC-000010","Severity":"medium","Title":"The number of allowed bad logon attempts must be configured to three or less."},{"VulnId":"WN11-AC-000020","Severity":"medium","Title":"The password history must be configured to 24 passwords remembered."},{"VulnId":"WN11-AC-000025","Severity":"medium","Title":"The maximum password age must be configured to 60 days or less."},{"VulnId":"WN11-AC-000030","Severity":"medium","Title":"The minimum password age must be configured to at least 1 day."},{"VulnId":"WN11-AC-000035","Severity":"medium","Title":"Passwords must, at a minimum, be 14 characters."},{"VulnId":"WN11-AU-000005","Severity":"medium","Title":"The system must be configured to audit Account Logon - Credential Validation failures."},{"VulnId":"WN11-AU-000010","Severity":"medium","Title":"The system must be configured to audit Account Logon - Credential Validation successes."},{"VulnId":"WN11-AU-000030","Severity":"medium","Title":"The system must be configured to audit Account Management - Security Group Management successes."},{"VulnId":"WN11-AU-000035","Severity":"medium","Title":"The system must be configured to audit Account Management - User Account Management failures."},{"VulnId":"WN11-AU-000040","Severity":"medium","Title":"The system must be configured to audit Account Management - User Account Management successes."},{"VulnId":"WN11-AU-000045","Severity":"medium","Title":"The system must be configured to audit Detailed Tracking - PNP Activity successes."},{"VulnId":"WN11-AU-000050","Severity":"medium","Title":"The system must be configured to audit Detailed Tracking - Process Creation successes."},{"VulnId":"WN11-AU-000054","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Account Lockout failures."},{"VulnId":"WN11-AU-000060","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Group Membership successes."},{"VulnId":"WN11-AU-000065","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Logoff successes."},{"VulnId":"WN11-AU-000070","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Logon failures."},{"VulnId":"WN11-AU-000075","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Logon successes."},{"VulnId":"WN11-AU-000080","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Special Logon successes."},{"VulnId":"WN11-AU-000081","Severity":"medium","Title":"Windows 11 must be configured to audit Object Access - File Share failures."},{"VulnId":"WN11-AU-000082","Severity":"medium","Title":"Windows 11 must be configured to audit Object Access - File Share successes."},{"VulnId":"WN11-AU-000083","Severity":"medium","Title":"Windows 11 must be configured to audit Object Access - Other Object Access Events successes."},{"VulnId":"WN11-AU-000084","Severity":"medium","Title":"Windows 11 must be configured to audit Object Access - Other Object Access Events failures."},{"VulnId":"WN11-AU-000085","Severity":"medium","Title":"The system must be configured to audit Object Access - Removable Storage failures."},{"VulnId":"WN11-AU-000090","Severity":"medium","Title":"The system must be configured to audit Object Access - Removable Storage successes."},{"VulnId":"WN11-AU-000100","Severity":"medium","Title":"The system must be configured to audit Policy Change - Audit Policy Change successes."},{"VulnId":"WN11-AU-000105","Severity":"medium","Title":"The system must be configured to audit Policy Change - Authentication Policy Change successes."},{"VulnId":"WN11-AU-000107","Severity":"medium","Title":"The system must be configured to audit Policy Change - Authorization Policy Change successes."},{"VulnId":"WN11-AU-000110","Severity":"medium","Title":"The system must be configured to audit Privilege Use - Sensitive Privilege Use failures."},{"VulnId":"WN11-AU-000115","Severity":"medium","Title":"The system must be configured to audit Privilege Use - Sensitive Privilege Use successes."},{"VulnId":"WN11-AU-000120","Severity":"medium","Title":"The system must be configured to audit System - IPsec Driver failures."},{"VulnId":"WN11-AU-000130","Severity":"medium","Title":"The system must be configured to audit System - Other System Events successes."},{"VulnId":"WN11-AU-000135","Severity":"medium","Title":"The system must be configured to audit System - Other System Events failures."},{"VulnId":"WN11-AU-000140","Severity":"medium","Title":"The system must be configured to audit System - Security State Change successes."},{"VulnId":"WN11-AU-000150","Severity":"medium","Title":"The system must be configured to audit System - Security System Extension successes."},{"VulnId":"WN11-AU-000155","Severity":"medium","Title":"The system must be configured to audit System - System Integrity failures."},{"VulnId":"WN11-AU-000160","Severity":"medium","Title":"The system must be configured to audit System - System Integrity successes."},{"VulnId":"WN11-AU-000500","Severity":"medium","Title":"The Application event log size must be configured to 32768 KB or greater."},{"VulnId":"WN11-AU-000505","Severity":"medium","Title":"The Security event log size must be configured to 1024000 KB or greater."},{"VulnId":"WN11-AU-000510","Severity":"medium","Title":"The System event log size must be configured to 32768 KB or greater."},{"VulnId":"WN11-AU-000550","Severity":"medium","Title":"Windows 11 must be configured to audit Other Policy Change Events Successes."},{"VulnId":"WN11-AU-000555","Severity":"medium","Title":"Windows 11 must be configured to audit Other Policy Change Events Failures."},{"VulnId":"WN11-AU-000560","Severity":"medium","Title":"Windows 11 must be configured to audit other Logon/Logoff Events Successes."},{"VulnId":"WN11-AU-000565","Severity":"medium","Title":"Windows 11 must be configured to audit other Logon/Logoff Events Failures."},{"VulnId":"WN11-AU-000570","Severity":"medium","Title":"Windows 11 must be configured to audit Detailed File Share Failures."},{"VulnId":"WN11-AU-000575","Severity":"medium","Title":"Windows 11 must be configured to audit MPSSVC Rule-Level Policy Change Successes."},{"VulnId":"WN11-AU-000580","Severity":"medium","Title":"Windows 11 must be configured to audit MPSSVC Rule-Level Policy Change Failures."},{"VulnId":"WN11-AU-000581","Severity":"medium","Title":"Windows 11 must be configured to audit file system failures."},{"VulnId":"WN11-AU-000582","Severity":"medium","Title":"Windows 11 must be configured to audit file system successes."},{"VulnId":"WN11-AU-000583","Severity":"medium","Title":"Windows 11 must be configured to audit handle manipulation failures."},{"VulnId":"WN11-AU-000584","Severity":"medium","Title":"Windows 11 must be configured to audit handle manipulation successes."},{"VulnId":"WN11-AU-000585","Severity":"medium","Title":"Windows 11 must have command line process auditing events enabled for failures."},{"VulnId":"WN11-AU-000586","Severity":"medium","Title":"Windows 11 must be configured to audit registry successes."},{"VulnId":"WN11-AU-000587","Severity":"medium","Title":"Windows 11 must be configured to audit sensitive privilege use successes."},{"VulnId":"WN11-AU-000588","Severity":"medium","Title":"Windows 11 must be configured to audit sensitive privilege use failures."},{"VulnId":"WN11-AU-000589","Severity":"medium","Title":"Windows 11 must be configured to audit registry failures."},{"VulnId":"WN11-CC-000005","Severity":"medium","Title":"Camera access from the lock screen must be disabled."},{"VulnId":"WN11-CC-000020","Severity":"medium","Title":"IPv6 source routing must be configured to highest protection."},{"VulnId":"WN11-CC-000025","Severity":"medium","Title":"The system must be configured to prevent IP source routing."},{"VulnId":"WN11-CC-000030","Severity":"low","Title":"The system must be configured to prevent Internet Control Message Protocol (ICMP) redirects from overriding Open Shortest Path First (OSPF) generated routes."},{"VulnId":"WN11-CC-000035","Severity":"low","Title":"The system must be configured to ignore NetBIOS name release requests except from WINS servers."},{"VulnId":"WN11-CC-000037","Severity":"medium","Title":"Local administrator accounts must have their privileged token filtered to prevent elevated privileges from being used over the network on domain systems."},{"VulnId":"WN11-CC-000038","Severity":"medium","Title":"WDigest Authentication must be disabled."},{"VulnId":"WN11-CC-000039","Severity":"medium","Title":"Run as different user must be removed from context menus."},{"VulnId":"WN11-CC-000040","Severity":"medium","Title":"Insecure logons to an SMB server must be disabled."},{"VulnId":"WN11-CC-000050","Severity":"medium","Title":"Hardened UNC Paths must be defined to require mutual authentication and integrity for at least the \\\\*\\SYSVOL and \\\\*\\NETLOGON shares."},{"VulnId":"WN11-CC-000052","Severity":"medium","Title":"Windows 11 must be configured to prioritize ECC Curves with longer key lengths first."},{"VulnId":"WN11-CC-000060","Severity":"medium","Title":"Connections to non-domain networks when connected to a domain authenticated network must be blocked."},{"VulnId":"WN11-CC-000066","Severity":"medium","Title":"Command line data must be included in process creation events."},{"VulnId":"WN11-CC-000068","Severity":"medium","Title":"Windows 11 must be configured to enable Remote host allows delegation of non-exportable credentials."},{"VulnId":"WN11-CC-000085","Severity":"medium","Title":"Early Launch Antimalware, Boot-Start Driver Initialization Policy must prevent boot drivers."},{"VulnId":"WN11-CC-000090","Severity":"medium","Title":"Group Policy objects must be reprocessed even if they have not changed."},{"VulnId":"WN11-CC-000100","Severity":"medium","Title":"Downloading print driver packages over HTTP must be prevented."},{"VulnId":"WN11-CC-000105","Severity":"medium","Title":"Web publishing and online ordering wizards must be prevented from downloading a list of providers."},{"VulnId":"WN11-CC-000110","Severity":"medium","Title":"Printing over HTTP must be prevented."},{"VulnId":"WN11-CC-000120","Severity":"medium","Title":"The network selection user interface (UI) must not be displayed on the logon screen."},{"VulnId":"WN11-CC-000130","Severity":"medium","Title":"Local users on domain-joined computers must not be enumerated."},{"VulnId":"WN11-CC-000155","Severity":"high","Title":"Solicited Remote Assistance must not be allowed."},{"VulnId":"WN11-CC-000165","Severity":"medium","Title":"Unauthenticated RPC clients must be restricted from connecting to the RPC server."},{"VulnId":"WN11-CC-000170","Severity":"low","Title":"The setting to allow Microsoft accounts to be optional for modern style apps must be enabled."},{"VulnId":"WN11-CC-000175","Severity":"low","Title":"The Application Compatibility Program Inventory must be prevented from collecting data and sending the information to Microsoft."},{"VulnId":"WN11-CC-000180","Severity":"high","Title":"Autoplay must be turned off for non-volume devices."},{"VulnId":"WN11-CC-000185","Severity":"high","Title":"The default autorun behavior must be configured to prevent autorun commands."},{"VulnId":"WN11-CC-000190","Severity":"high","Title":"Autoplay must be disabled for all drives."},{"VulnId":"WN11-CC-000195","Severity":"medium","Title":"Enhanced anti-spoofing for facial recognition must be enabled on Windows 11."},{"VulnId":"WN11-CC-000197","Severity":"low","Title":"Microsoft consumer experiences must be turned off."},{"VulnId":"WN11-CC-000200","Severity":"medium","Title":"Administrator accounts must not be enumerated during elevation."},{"VulnId":"WN11-CC-000204","Severity":"medium","Title":"Enhanced diagnostic data must be limited to the minimum required to support Windows Analytics."},{"VulnId":"WN11-CC-000205","Severity":"medium","Title":"Windows Telemetry must not be configured to Full."},{"VulnId":"WN11-CC-000210","Severity":"medium","Title":"The Microsoft Defender SmartScreen for Explorer must be enabled."},{"VulnId":"WN11-CC-000252","Severity":"medium","Title":"Windows 11 must be configured to disable Windows Game Recording and Broadcasting."},{"VulnId":"WN11-CC-000260","Severity":"medium","Title":"Windows 11 must be configured to require a minimum pin length of six characters or greater."},{"VulnId":"WN11-CC-000270","Severity":"medium","Title":"Passwords must not be saved in the Remote Desktop Client."},{"VulnId":"WN11-CC-000275","Severity":"medium","Title":"Local drives must be prevented from sharing with Remote Desktop Session Hosts."},{"VulnId":"WN11-CC-000280","Severity":"medium","Title":"Remote Desktop Services must always prompt a client for passwords upon connection."},{"VulnId":"WN11-CC-000285","Severity":"medium","Title":"The Remote Desktop Session Host must require secure RPC communications."},{"VulnId":"WN11-CC-000290","Severity":"medium","Title":"Remote Desktop Services must be configured with the client connection encryption set to the required level."},{"VulnId":"WN11-CC-000295","Severity":"medium","Title":"Attachments must be prevented from being downloaded from RSS feeds."},{"VulnId":"WN11-CC-000305","Severity":"medium","Title":"Indexing of encrypted files must be turned off."},{"VulnId":"WN11-CC-000310","Severity":"medium","Title":"Users must be prevented from changing installation options."},{"VulnId":"WN11-CC-000315","Severity":"high","Title":"The Windows Installer feature \"Always install with elevated privileges\" must be disabled."},{"VulnId":"WN11-CC-000325","Severity":"medium","Title":"Automatically signing in the last interactive user after a system-initiated restart must be disabled."},{"VulnId":"WN11-CC-000326","Severity":"medium","Title":"PowerShell script block logging must be enabled on Windows 11."},{"VulnId":"WN11-CC-000327","Severity":"medium","Title":"PowerShell Transcription must be enabled on Windows 11."},{"VulnId":"WN11-CC-000330","Severity":"high","Title":"The Windows Remote Management (WinRM) client must not use Basic authentication."},{"VulnId":"WN11-CC-000335","Severity":"medium","Title":"The Windows Remote Management (WinRM) client must not allow unencrypted traffic."},{"VulnId":"WN11-CC-000345","Severity":"high","Title":"The Windows Remote Management (WinRM) service must not use Basic authentication."},{"VulnId":"WN11-CC-000350","Severity":"medium","Title":"The Windows Remote Management (WinRM) service must not allow unencrypted traffic."},{"VulnId":"WN11-CC-000355","Severity":"medium","Title":"The Windows Remote Management (WinRM) service must not store RunAs credentials."},{"VulnId":"WN11-CC-000360","Severity":"medium","Title":"The Windows Remote Management (WinRM) client must not use Digest authentication."},{"VulnId":"WN11-CC-000365","Severity":"medium","Title":"Windows 11 must be configured to prevent Windows apps from being activated by voice while the system is locked."},{"VulnId":"WN11-CC-000385","Severity":"medium","Title":"Windows Ink Workspace must be configured to disallow access above the lock."},{"VulnId":"WN11-CC-000390","Severity":"low","Title":"Windows 11 must be configured to prevent users from receiving suggestions for third-party or additional applications."},{"VulnId":"WN11-EP-000310","Severity":"medium","Title":"Windows 11 Kernel (Direct Memory Access) DMA Protection must be enabled."},{"VulnId":"WN11-PK-000005","Severity":"medium","Title":"The DoD Root CA certificates must be installed in the Trusted Root Store."},{"VulnId":"WN11-PK-000010","Severity":"medium","Title":"The External Root CA certificates must be installed in the Trusted Root Store on unclassified systems."},{"VulnId":"WN11-PK-000015","Severity":"medium","Title":"The DoD Interoperability Root CA cross-certificates must be installed in the Untrusted Certificates Store on unclassified systems."},{"VulnId":"WN11-PK-000020","Severity":"medium","Title":"The US DOD CCEB Interoperability Root CA cross-certificates must be installed in the Untrusted Certificates Store on unclassified systems."},{"VulnId":"WN11-SO-000005","Severity":"medium","Title":"The built-in administrator account must be disabled."},{"VulnId":"WN11-SO-000020","Severity":"medium","Title":"The built-in administrator account must be renamed."},{"VulnId":"WN11-SO-000025","Severity":"medium","Title":"The built-in guest account must be renamed."},{"VulnId":"WN11-SO-000030","Severity":"medium","Title":"Audit policy using subcategories must be enabled."},{"VulnId":"WN11-SO-000070","Severity":"medium","Title":"The machine inactivity limit must be set to 15 minutes, locking the system with the screensaver."},{"VulnId":"WN11-SO-000075","Severity":"medium","Title":"The required legal notice must be configured to display before console logon."},{"VulnId":"WN11-SO-000080","Severity":"low","Title":"The Windows message title for the legal notice must be configured."},{"VulnId":"WN11-SO-000095","Severity":"medium","Title":"The Smart Card removal option must be configured to Force Logoff or Lock Workstation."},{"VulnId":"WN11-SO-000150","Severity":"high","Title":"Anonymous enumeration of shares must be restricted."},{"VulnId":"WN11-SO-000167","Severity":"medium","Title":"Remote calls to the Security Account Manager (SAM) must be restricted to Administrators."},{"VulnId":"WN11-SO-000180","Severity":"medium","Title":"NTLM must be prevented from falling back to a Null session."},{"VulnId":"WN11-SO-000185","Severity":"medium","Title":"PKU2U authentication using online identities must be prevented."},{"VulnId":"WN11-SO-000190","Severity":"medium","Title":"Kerberos encryption types must be configured to prevent the use of DES and RC4 encryption suites."},{"VulnId":"WN11-SO-000205","Severity":"high","Title":"The LanMan authentication level must be set to send NTLMv2 response only, and to refuse LM and NTLM."},{"VulnId":"WN11-SO-000215","Severity":"medium","Title":"The system must be configured to meet the minimum session security requirement for NTLM SSP based clients."},{"VulnId":"WN11-SO-000220","Severity":"medium","Title":"The system must be configured to meet the minimum session security requirement for NTLM SSP based servers."},{"VulnId":"WN11-SO-000230","Severity":"medium","Title":"The system must be configured to use FIPS-compliant algorithms for encryption, hashing, and signing."},{"VulnId":"WN11-SO-000250","Severity":"medium","Title":"User Account Control must prompt administrators for consent on the secure desktop."},{"VulnId":"WN11-SO-000251","Severity":"medium","Title":"Windows 11 must use multifactor authentication for local and network access to privileged and nonprivileged accounts."},{"VulnId":"WN11-SO-000255","Severity":"medium","Title":"User Account Control must automatically deny elevation requests for standard users."},{"VulnId":"WN11-SO-000280","Severity":"medium","Title":"Passwords for enabled local Administrator accounts must be changed at least every 60 days."},{"VulnId":"WN11-UC-000015","Severity":"low","Title":"Toast notifications to the lock screen must be turned off."},{"VulnId":"WN11-UR-000010","Severity":"medium","Title":"The \"Access this computer from the network\" user right must only be assigned to the Administrators and Remote Desktop Users groups."},{"VulnId":"WN11-UR-000025","Severity":"medium","Title":"The \"Allow log on locally\" user right must only be assigned to the Administrators and Users groups."},{"VulnId":"WN11-UR-000030","Severity":"medium","Title":"The \"Back up files and directories\" user right must only be assigned to the Administrators group."},{"VulnId":"WN11-UR-000070","Severity":"medium","Title":"The \"Deny access to this computer from the network\" user right on workstations must be configured to prevent access from highly privileged domain accounts and local accounts on domain systems and unauthenticated access on all systems."},{"VulnId":"WN11-UR-000075","Severity":"medium","Title":"The \"Deny log on as a batch job\" user right on domain-joined workstations must be configured to prevent access from highly privileged domain accounts."},{"VulnId":"WN11-UR-000080","Severity":"medium","Title":"The \"Deny log on as a service\" user right on Windows 11 domain-joined workstations must be configured to prevent access from highly privileged domain accounts."},{"VulnId":"WN11-UR-000085","Severity":"medium","Title":"The \"Deny log on locally\" user right on workstations must be configured to prevent access from highly privileged domain accounts on domain systems and unauthenticated access on all systems."},{"VulnId":"WN11-UR-000090","Severity":"medium","Title":"The \"Deny log on through Remote Desktop Services\" user right on Windows 11 workstations must be configured to prevent access from highly privileged domain accounts and local accounts on domain systems and unauthenticated access on all systems."},{"VulnId":"WN11-UR-000160","Severity":"medium","Title":"The \"Restore files and directories\" user right must only be assigned to the Administrators group."}]`);
+
+/* ══════════════════════════════════════
+   CATEGORY COLOURS
+══════════════════════════════════════ */
+const CAT_COLOR = {
+  "Auth & Crypto":              "#1E5FA8",
+  "PowerShell & Scripting":     "#6B3FA0",
+  "Audit & Logging":            "#0B7A8C",
+  "Apps & Features":            "#B86E00",
+  "Account & Logon":            "#1A6630",
+  "Network":                    "#1A3A6B",
+  "Passwords":                  "#8B6000",
+  "Device & Hardware":          "#3A5A8C",
+  "Remote Access":              "#7A4500",
+  "User Rights & Local Accounts":"#7A2020"
+};
+
+const CATS = [...new Set(D.map(r=>r.cat))].sort();
+let opsOnly = false, pilotOnly = false, curView = 'board';
+const INFOSEC_STORAGE_KEY = 'stig-infosec-state-v2';
+const INFOSEC_STATE_API = '/api/infosec-state';
+const TEAM_OPTIONS = [
+  'Endpoint Security Engineering',
+  'Identity & Access Engineering',
+  'Security Operations & Detection',
+  'Infrastructure & Trust Services',
+  'Browser & Application Engineering'
+];
+let infoSecOwner = '';
+let infoSecSeverity = '';
+let infoSecPriority = '';
+let infoSecSearch = '';
+let infoSecPage = 1;
+let infoSecPageSize = 12;
+let syncStatus = /^https?:/.test(window.location.protocol) ? 'Server sync available' : 'Local mode only';
+const VIEW_META = {
+  board: {
+    title: 'Command Center',
+    copy: 'The summary view for the selected Windows 11 control set. Use this to understand readiness, validation posture, and what matters most before rollout.',
+    pill: '35 selected controls'
+  },
+  pilot: {
+    title: 'Pilot Wave',
+    copy: 'The Device B QA workspace. This is only for the agreed pilot controls and answers a simple question: what is ready, what needs review, and what still blocks sign-off.',
+    pill: 'Device B pilot only'
+  },
+  infosec: {
+    title: 'Operations Backlog',
+    copy: 'The full baseline-failures workspace, blended with ownership and team participation. Use this to assign owners, set priority, add notes, and move the broader program forward.',
+    pill: 'Shared execution view'
+  },
+  readiness: {
+    title: 'Release Readiness',
+    copy: 'The release view tracks whether Wave 1 is actually ready to move. It separates controls that are scan-proven from items still waiting on QA, blockers, or ownership sign-off.',
+    pill: 'Wave and stage readiness'
+  },
+  cat: {
+    title: 'Control Library',
+    copy: 'A structured library of the selected controls by category. Use this when you want to read, compare, and open details without the rollout framing.',
+    pill: 'Browse by category'
+  },
+  matrix: {
+    title: 'Risk Matrix',
+    copy: 'A visual decision view that compares security value against user friction. Use this for sequencing and stakeholder discussions, not day-to-day task tracking.',
+    pill: 'Decision support'
+  }
+};
+
+function loadInfoSecState() {
+  try {
+    return JSON.parse(localStorage.getItem(INFOSEC_STORAGE_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+let infoSecState = loadInfoSecState();
+
+function saveInfoSecState() {
+  localStorage.setItem(INFOSEC_STORAGE_KEY, JSON.stringify(infoSecState));
+}
+
+function inferInfoSecOwner(ruleId, title) {
+  if (ruleId.includes('-AU-')) return 'Security Operations & Detection';
+  if (ruleId.includes('-PK-')) return 'Infrastructure & Trust Services';
+  if (ruleId.includes('-UR-')) return 'Identity & Access Engineering';
+  if (ruleId.includes('-AC-')) return 'Identity & Access Engineering';
+  if (title.includes('NTLM') || title.includes('Kerberos') || title.includes('LanMan') || title.includes('SMB') || title.includes('SAM')) return 'Identity & Access Engineering';
+  if (title.includes('certificate') || title.includes('Root CA')) return 'Infrastructure & Trust Services';
+  if (title.includes('Chrome') || title.includes('Edge') || title.includes('Firefox') || title.includes('Office') || title.includes('Explorer')) return 'Browser & Application Engineering';
+  return 'Endpoint Security Engineering';
+}
+
+function inferInfoSecMethod(ruleId, title) {
+  if (ruleId.includes('-PK-')) return 'Central certificate distribution through trust-store management, GPO, or device configuration profiles';
+  if (ruleId.includes('-AU-')) return 'Advanced Audit Policy through GPO or Intune Settings Catalog with a retest in SCC';
+  if (ruleId.includes('-UR-') || ruleId.includes('-AC-') || title.includes('User right') || title.includes('Account')) return 'Domain-backed security policy with IAM sign-off, not a one-off local-only change';
+  if (title.includes('BitLocker')) return 'Intune Endpoint Security or GPO BitLocker policy';
+  if (title.includes('WinRM') || title.includes('Remote Desktop') || title.includes('RPC')) return 'Administrative Templates or security baselines, validated against admin workflow impact';
+  if (title.includes('PowerShell') || title.includes('Copilot') || title.includes('consumer') || title.includes('Telemetry') || title.includes('Game Recording')) return 'Administrative Templates via Intune or GPO, with plain-English release notes for users';
+  return 'Policy-backed endpoint configuration, documented in a reusable implementation standard';
+}
+
+function summarizeFinding(ruleId, title) {
+  if (ruleId.includes('-AU-')) return 'The device is missing one or more required audit events, so security evidence is incomplete.';
+  if (ruleId.includes('-AC-')) return 'The local or domain account policy is weaker than the STIG baseline expects.';
+  if (ruleId.includes('-UR-')) return 'A privileged user-right assignment is broader than it should be.';
+  if (title.includes('BitLocker PIN')) return 'The startup protection requirement for BitLocker is not fully enforced yet.';
+  if (title.includes('Copilot')) return 'Windows Copilot is still available or not fully blocked for the tested state.';
+  if (title.includes('Remote Desktop') || title.includes('WinRM') || title.includes('RPC')) return 'A remote administration control is still more permissive than the STIG requires.';
+  if (title.includes('certificate') || title.includes('Root CA')) return 'Required trust-store certificates are missing or not placed in the expected store.';
+  return title.replace(/\s*must\s+/i, ' currently does not ').replace(/\.$/, '') + '.';
+}
+
+function inferInfoSecWhy(ruleId, title) {
+  if (ruleId.includes('-AU-')) return 'This improves the quality of security evidence, which makes investigations, compliance reviews, and leadership reporting much easier to trust.';
+  if (ruleId.includes('-AC-')) return 'This reduces weak password behavior and makes brute-force or password-reuse attacks materially harder.';
+  if (ruleId.includes('-UR-')) return 'This narrows where privileged accounts can be used and reduces the chance of avoidable lateral movement.';
+  if (title.includes('BitLocker')) return 'Protects the device before Windows starts and limits data loss if a laptop is lost or stolen.';
+  if (title.includes('Remote Desktop') || title.includes('WinRM') || title.includes('RPC')) return 'This closes common remote administration abuse paths, but it should be communicated clearly because it can affect operational habits.';
+  if (title.includes('certificate') || title.includes('Root CA')) return 'This keeps machine trust aligned with enterprise and DoD certificate expectations so devices do not make the wrong trust decision.';
+  if (title.includes('Telemetry') || title.includes('consumer') || title.includes('Copilot')) return 'This removes unnecessary consumer or cloud-facing behavior from a business workstation and reduces data exposure.';
+  return 'This is part of a cleaner Windows baseline and lowers attack surface without requiring a full hardening posture everywhere at once.';
+}
+
+function inferInfoSecFocus(ruleId, title) {
+  if (ruleId === 'WN11-AU-000505') return 'Correct the script first. The current batch sets 32768 KB, but the Security log requirement is 1024000 KB or greater.';
+  if (title.includes('BitLocker PIN')) return 'Keep out of balanced pilot unless boot-time UX impact is accepted.';
+  if (title.includes('PowerShell 2.0')) return 'Treat carefully: SCC may report this as fail even when the feature is absent.';
+  if (title.includes('Copilot')) return 'Baseline shows fail; the final device moved. Verify whether policy landed for all users.';
+  if (title.includes('Bluetooth')) return 'High false-positive risk for business peripherals. Require device-role decision before blanket enforcement.';
+  if (title.includes('WinRM') || title.includes('Remote Desktop')) return 'Good security value, but validate admin workflows before broad rollout.';
+  if (ruleId.includes('-PK-')) return 'This needs central trust-store ownership. Do not solve it with one-off scripting on a single machine.';
+  return 'Assign the right owner, pick the durable implementation method, and only mark it complete after an SCC retest.';
+}
+
+const INFOSEC_SOURCE = Array.isArray(window.BASELINE_FAILED) && window.BASELINE_FAILED.length ? window.BASELINE_FAILED : BASELINE_FAILED;
+
+const INFOSEC_OVERRIDES = {
+  'WN11-AU-000505': { priority: 'High', owner: 'Security Operations & Detection' },
+  'WN11-00-000031': { priority: 'High', owner: 'Endpoint Security Engineering' },
+  'WN11-00-000032': { priority: 'Medium', owner: 'Endpoint Security Engineering' },
+  'WN11-00-000155': { priority: 'High', owner: 'Endpoint Security Engineering' },
+  'WN11-00-000125': { priority: 'Medium', owner: 'Endpoint Security Engineering' },
+  'WN11-AC-000020': { priority: 'Medium', owner: 'Identity & Access Engineering' },
+  'WN11-AC-000025': { priority: 'Medium', owner: 'Identity & Access Engineering' },
+  'WN11-AC-000030': { priority: 'Low', owner: 'Identity & Access Engineering' },
+  'WN11-AC-000035': { priority: 'Medium', owner: 'Identity & Access Engineering' },
+  'WN11-CC-000330': { priority: 'High', owner: 'Endpoint Security Engineering' },
+  'WN11-CC-000345': { priority: 'High', owner: 'Endpoint Security Engineering' },
+  'WN11-SO-000205': { priority: 'High', owner: 'Identity & Access Engineering' },
+  'WN11-SO-000230': { priority: 'Medium', owner: 'Identity & Access Engineering' }
+};
+
+const INFOSEC_ITEMS = INFOSEC_SOURCE.map(item => {
+  const primaryId = item.VId || item.VulnId || item.RuleId;
+  const ruleId = item.RuleId || item.VulnId || '';
+  const state = infoSecState[primaryId] || {};
+  const override = INFOSEC_OVERRIDES[ruleId] || {};
+  const severity = item.Severity.charAt(0).toUpperCase() + item.Severity.slice(1);
+  const owner = state.owner || override.owner || inferInfoSecOwner(ruleId, item.Title);
+  const priority = state.priority || override.priority || (severity === 'High' ? 'High' : 'Medium');
+  return {
+    id: primaryId,
+    ruleId,
+    severity,
+    title: item.Title,
+    owner,
+    priority,
+    note: state.note || '',
+    finding: summarizeFinding(ruleId, item.Title),
+    why: inferInfoSecWhy(ruleId, item.Title),
+    method: inferInfoSecMethod(ruleId, item.Title),
+    focus: inferInfoSecFocus(ruleId, item.Title),
+    bucket: ruleId.split('-')[1] || '',
+    recommendation: `Use ${inferInfoSecMethod(ruleId, item.Title)}. Mark it done only after the device retest shows ${primaryId} as compliant.`
+  };
+});
+
+function getInfoSecRows() {
+  return INFOSEC_ITEMS.filter(item => {
+    if (infoSecOwner && item.owner !== infoSecOwner) return false;
+    if (infoSecSeverity && item.severity !== infoSecSeverity) return false;
+    if (infoSecPriority && item.priority !== infoSecPriority) return false;
+    if (infoSecSearch) {
+      const haystack = [item.id, item.title, item.owner, item.method, item.why, item.focus, item.note].join(' ').toLowerCase();
+      if (!haystack.includes(infoSecSearch.toLowerCase())) return false;
+    }
+    return true;
+  });
+}
+
+function getPaginatedInfoSecRows() {
+  const filtered = getInfoSecRows();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / infoSecPageSize));
+  infoSecPage = Math.min(infoSecPage, totalPages);
+  const start = (infoSecPage - 1) * infoSecPageSize;
+  return {
+    all: filtered,
+    pageRows: filtered.slice(start, start + infoSecPageSize),
+    totalPages
+  };
+}
+
+const READINESS_META = {
+  "V-253358": { stage:"QA Passed", next:"Ready for pilot ring", blocker:"None", qa:"Passed", rollback:"Low risk revert", lane:"Ready" },
+  "V-253285": { stage:"Initial EUC / InfoSec Testing", next:"Confirm NA handling in SCC narrative", blocker:"Benchmark interpretation", qa:"Needs review", rollback:"Not needed if absent", lane:"QA" },
+  "V-253367": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Low risk revert", lane:"Ready" },
+  "V-253414": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Low risk revert", lane:"Ready" },
+  "V-253354": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Low risk revert", lane:"Ready" },
+  "V-253353": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Low risk revert", lane:"Ready" },
+  "V-253370": { stage:"Initial EUC / InfoSec Testing", next:"Confirm proof versus already-passing baseline", blocker:"Ownership of proof narrative", qa:"Needs review", rollback:"Low risk revert", lane:"QA" },
+  "V-253371 / V-253426": { stage:"QA Requested", next:"Resolve VBS split before sign-off", blocker:"VBS regression", qa:"Blocked", rollback:"Hardware policy rollback available", lane:"Hold" },
+  "V-253306 / V-253317": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Audit policy revert documented", lane:"Ready" },
+  "V-253319 / V-253324 / V-278926 / V-278931": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Audit policy revert documented", lane:"Ready" },
+  "V-253325 / V-253329 / V-278932 / V-278933": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Audit policy revert documented", lane:"Ready" },
+  "V-253330 / V-253336": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Audit policy revert documented", lane:"Ready" },
+  "V-253259 / V-253257": { stage:"RFC Ready", next:"Move with pilot device group", blocker:"None", qa:"Passed", rollback:"BitLocker change control required", lane:"Ready" },
+  "V-253337 / V-253339": { stage:"QA Requested", next:"Fix Security log size and rescan", blocker:"Audit log sizing defect", qa:"Blocked", rollback:"Simple config revert", lane:"Hold" }
+};
+
+const READINESS_ITEMS = D.filter(r => r.pilot || r.validation === 'Failed').map(r => ({
+  ...r,
+  stage: (READINESS_META[r.id] || {}).stage || (r.validation === 'Proven' ? 'QA Passed' : r.validation === 'Partial' ? 'Initial EUC / InfoSec Testing' : 'QA Requested'),
+  next: (READINESS_META[r.id] || {}).next || 'Review and assign the next stage',
+  blocker: (READINESS_META[r.id] || {}).blocker || 'None',
+  qa: (READINESS_META[r.id] || {}).qa || (r.validation === 'Proven' ? 'Passed' : 'Needs review'),
+  rollback: (READINESS_META[r.id] || {}).rollback || 'Rollback note needed',
+  lane: (READINESS_META[r.id] || {}).lane || (r.validation === 'Proven' ? 'Ready' : r.validation === 'Partial' ? 'QA' : 'Hold')
+}));
+
+/* populate category filter */
+const fCat = document.getElementById('fCat');
+CATS.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; fCat.appendChild(o); });
+
+/* category sidebar bars */
+function buildCatBars() {
+  const max = Math.max(...CATS.map(c=>D.filter(r=>r.cat===c).length));
+  const wrap = document.getElementById('catBars');
+  wrap.innerHTML = '';
+  CATS.forEach(c => {
+    const cnt = D.filter(r=>r.cat===c).length;
+    const col = CAT_COLOR[c] || '#555';
+    const el = document.createElement('div');
+    el.className = 'cat-bar-row';
+    el.title = c;
+    el.onclick = () => { document.getElementById('fCat').value = c; render(); };
+    el.innerHTML = `
+      <div class="cat-bar-label">${c}</div>
+      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(cnt/max*100).toFixed(0)}%;background:${col}"></div></div>
+      <div class="cat-bar-num">${cnt}</div>`;
+    wrap.appendChild(el);
+  });
+}
+
+/* ══════════════════════════════════════
+   FILTER
+══════════════════════════════════════ */
+function getFiltered() {
+  const q   = document.getElementById('q').value.toLowerCase().trim();
+  const ft  = document.getElementById('fTier').value;
+  const fc  = document.getElementById('fCat').value;
+  const fi  = document.getElementById('fImp').value;
+  const ff  = document.getElementById('fFri').value;
+  const fv  = document.getElementById('fValidation').value;
+  return D.filter(r => {
+    if (ft && r.tier !== ft) return false;
+    if (fc && r.cat  !== fc) return false;
+    if (fi && r.imp  !== fi) return false;
+    if (ff && r.fri  !== ff) return false;
+    if (fv && r.validation !== fv) return false;
+    if (opsOnly && !r.ops)   return false;
+    if (pilotOnly && !r.pilot) return false;
+    if (q && ![r.name,r.id,r.cat,r.notes,r.risk,r.script,r.validation,r.evidence].some(v=>String(v).toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+/* ══════════════════════════════════════
+   HERO STATS update
+══════════════════════════════════════ */
+function updateHero(rows) {
+  document.getElementById('hs-t1').textContent = rows.filter(r=>r.tier==='Tier 1').length;
+  document.getElementById('hs-t2').textContent = rows.filter(r=>r.tier==='Tier 2').length;
+  document.getElementById('hs-t3').textContent = rows.filter(r=>r.tier==='Tier 3').length;
+  document.getElementById('hs-hi').textContent = rows.filter(r=>r.imp==='High').length;
+  document.getElementById('hs-ops').textContent= rows.filter(r=>r.ops).length;
+}
+
+/* ══════════════════════════════════════
+   BADGE HELPERS
+══════════════════════════════════════ */
+function impBadge(v) { return `<span class="badge imp-${v}">${v} Impact</span>`; }
+function friBadge(v) { return `<span class="badge fri-${v}">${v} Friction</span>`; }
+function catChip(c)  { return `<span class="card-cat" style="background:${CAT_COLOR[c]||'#555'}1A;color:${CAT_COLOR[c]||'#555'};border:1px solid ${CAT_COLOR[c]||'#555'}44">${c}</span>`; }
+function tierClass(t){ return t==='Tier 1'?'t1':t==='Tier 2'?'t2':'t3'; }
+function validationBadge(v) {
+  const cls = v === 'Proven' ? 'proven' : v === 'Partial' ? 'partial' : v === 'Failed' ? 'failed' : 'pending';
+  return `<span class="badge ${cls}">${v}</span>`;
+}
+
+/* ══════════════════════════════════════
+   BOARD VIEW
+══════════════════════════════════════ */
+function renderBoard(rows) {
+  const tiers = ['Tier 1','Tier 2','Tier 3'];
+  const statuses = {
+    'Tier 1': 'Tested / Passed',
+    'Tier 2': 'Tested / Passed',
+    'Tier 3': 'Planned'
+  };
+  const colCss   = ['col-t1','col-t2','col-t3'];
+  let html = '<div class="board min-h-0 overflow-visible">';
+  tiers.forEach((tier,i) => {
+    const cards = rows.filter(r=>r.tier===tier);
+    html += `<div class="${colCss[i]} min-h-0 max-h-[70vh] overflow-y-auto rounded-xl bg-slate-50/70 p-1">
+      <div class="board-col-header sticky top-0">
+        <span>${tier}</span>
+        <span class="status-pill" style="background:rgba(255,255,255,.2)">${statuses[tier]} · ${cards.length}</span>
+      </div>`;
+    if (!cards.length) {
+      html += `<div style="text-align:center;padding:20px;color:#aaa;font-size:12px">No controls match filters</div>`;
+    }
+    cards.forEach(r => {
+      html += `<div class="card" onclick="openPanel('${escJ(r.id)}')">
+        ${r.ops?'<div class="card-ops-flag">OPS ✓</div>':''}
+        ${catChip(r.cat)}
+        <div class="card-title">${r.name}</div>
+        <div class="card-id">${r.id}</div>
+        <div class="card-meta">
+          ${r.pilot?'<span class="badge pilot">Phase 1 Pilot</span>':''}
+          ${validationBadge(r.validation)}
+        </div>
+        <div class="card-badges">${impBadge(r.imp)}${friBadge(r.fri)}</div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  if (!rows.length) html = emptyState();
+  return html;
+}
+
+/* ══════════════════════════════════════
+   CATEGORY VIEW
+══════════════════════════════════════ */
+function renderCat(rows) {
+  if (!rows.length) return emptyState();
+  const byCat = {};
+  CATS.forEach(c=>{ const items=rows.filter(r=>r.cat===c); if(items.length) byCat[c]=items; });
+  let html = '<div class="cat-scroll min-h-0 h-full overflow-y-auto pr-1">';
+  Object.entries(byCat).forEach(([cat, items]) => {
+    const col = CAT_COLOR[cat]||'#555';
+    html += `<div class="cat-group">
+      <div class="cat-group-header" style="background:${col}" onclick="toggleCatGroup(this)">
+        <span>${cat}</span>
+        <span class="cg-count">${items.length}</span>
+        <span class="cg-arrow">▼</span>
+      </div>
+      <div class="cat-group-body">`;
+    items.forEach((r,idx) => {
+      const rowId = `lr-${escJ(r.id).replace(/[^a-z0-9]/gi,'_')}`;
+      const detId = `ld-${escJ(r.id).replace(/[^a-z0-9]/gi,'_')}`;
+      html += `
+        <div class="list-row" id="${rowId}" onclick="toggleListRow('${rowId}','${detId}','${escJ(r.id)}')">
+          <div>
+            <div class="list-id">${r.id}</div>
+            <span class="badge" style="font-size:9px;background:${col}22;color:${col};margin-top:3px;display:inline-block">${r.tier}</span>
+          </div>
+          <div class="list-name">${r.name}</div>
+          <div class="list-badges">${impBadge(r.imp)}${friBadge(r.fri)}${validationBadge(r.validation)}${r.pilot?'<span class="badge pilot">Pilot</span>':''}${r.ops?'<span class="badge ops-true">OPS ✓</span>':''}</div>
+        </div>
+        <div class="list-detail" id="${detId}">
+          <div style="font-size:12px;font-style:italic;color:#444;margin-bottom:10px">${r.notes}</div>
+          <div class="detail-grid2">
+            <div class="detail-field"><label>Risk if not implemented</label><div class="val risk">${r.risk} risk</div></div>
+            <div class="detail-field"><label>Status</label><div class="val">${r.status}</div></div>
+            <div class="detail-field"><label>Validation</label><div class="val">${r.validation}</div></div>
+            <div class="detail-field"><label>Evidence</label><div class="val">${r.evidence}</div></div>
+          </div>
+          <div style="margin-top:10px;font-size:11px;color:#888;cursor:pointer;text-decoration:underline" onclick="openPanel('${escJ(r.id)}');event.stopPropagation()">View full details →</div>
+        </div>`;
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderPilot(rows) {
+  const pilotRows = rows.filter(r => r.pilot);
+  if (!pilotRows.length) return emptyState();
+
+  const proven = pilotRows.filter(r => r.validation === 'Proven');
+  const partial = pilotRows.filter(r => r.validation === 'Partial');
+  const failed = pilotRows.filter(r => r.validation === 'Failed');
+
+  function lane(title, cls, items, emptyCopy) {
+    return `<section class="pilot-lane">
+      <div class="pilot-lane-head ${cls}">
+        <span>${title}</span>
+        <span>${items.length}</span>
+      </div>
+      <div class="pilot-lane-body">
+        ${items.length ? items.map(r => `
+          <article class="pilot-card" onclick="openPanel('${escJ(r.id)}')">
+            <div class="pilot-card-id">${r.id}</div>
+            <div class="pilot-card-title">${r.name}</div>
+            <div class="pilot-card-meta">
+              ${validationBadge(r.validation)}
+              ${impBadge(r.imp)}
+              ${friBadge(r.fri)}
+            </div>
+            <div class="pilot-card-note">${r.evidence}</div>
+          </article>
+        `).join('') : `<div class="pilot-sub" style="margin:0">${emptyCopy}</div>`}
+      </div>
+    </section>`;
+  }
+
+  return `<div class="pilot-shell min-h-0 overflow-visible">
+    <section class="pilot-panel min-h-0 max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <h3>Device B Phase 1 QA Pilot</h3>
+      <div class="pilot-sub">
+        Dedicated workspace for the high-risk pilot controls from <code>Win11_STIG_Pilot</code>. Use this view to track what is
+        scan-proven, what still needs verification, and what should block pilot sign-off.
+      </div>
+      <div class="pilot-summary">
+        <div class="pilot-stat"><strong>${pilotRows.length}</strong><span>Pilot Controls</span></div>
+        <div class="pilot-stat"><strong>${proven.length}</strong><span>Proven</span></div>
+        <div class="pilot-stat"><strong>${partial.length}</strong><span>Needs Review</span></div>
+        <div class="pilot-stat"><strong>${failed.length}</strong><span>Blocked</span></div>
+      </div>
+      <div class="pilot-lanes">
+        ${lane('Ready For Pilot QA', 'proven', proven, 'No proven pilot controls are visible with the current filters.')}
+        ${lane('Verify Before Sign-Off', 'partial', partial, 'No partial pilot controls are visible with the current filters.')}
+        ${lane('Fix Before Pilot', 'failed', failed, 'No failed pilot controls are visible with the current filters.')}
+      </div>
+    </section>
+    <aside class="pilot-panel min-h-0 max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <h3>Work Queue</h3>
+      <div class="pilot-sub">
+        The tracker should keep pilot work focused on the few items that actually change readiness, not every deferred control.
+      </div>
+      <div class="pilot-actions">
+        <article class="pilot-action">
+          <div class="kicker">Immediate</div>
+          <div class="title">Review VBS regression</div>
+          <div class="copy">The April 1, 2026 scan shows the VBS platform-security benchmark regressed while DMA protection passed. Do not call hardware hardening stable until that split is explained.</div>
+        </article>
+        <article class="pilot-action">
+          <div class="kicker">Immediate</div>
+          <div class="title">Fix Security event log sizing</div>
+          <div class="copy">The current audit script sets logs to 32768 KB, but the Security log STIG requires 1024000 KB or greater. This remains an avoidable fail.</div>
+        </article>
+        <article class="pilot-action">
+          <div class="kicker">Validate</div>
+          <div class="title">Move password policy to durable ownership</div>
+          <div class="copy">Local password and lockout settings are useful for lab testing, but they are not final until domain-level ownership and persistence are confirmed.</div>
+        </article>
+        <article class="pilot-action">
+          <div class="kicker">De-scope Noise</div>
+          <div class="title">Stop counting failed app scripts as done</div>
+          <div class="copy">Firefox, Defender, .NET, and Office are not scan-proven. Keep them out of pilot completion claims until their policy paths are redesigned and rescanned.</div>
+        </article>
+      </div>
+    </aside>
+  </div>`;
+}
+
+function ownerSummary(rows) {
+  const grouped = {};
+  rows.forEach(row => {
+    if (!grouped[row.owner]) grouped[row.owner] = { count: 0, high: 0, medium: 0, low: 0 };
+    grouped[row.owner].count += 1;
+    grouped[row.owner][row.severity.toLowerCase()] += 1;
+  });
+  return Object.entries(grouped)
+    .sort((a, b) => b[1].count - a[1].count)
+    .map(([owner, stats]) => ({ owner, ...stats }));
+}
+
+function renderInfoSec() {
+  const { all: rows, pageRows, totalPages } = getPaginatedInfoSecRows();
+  const owners = [...new Set(INFOSEC_ITEMS.map(r => r.owner))].sort();
+  const filteredHigh = rows.filter(r => r.severity === 'High').length;
+  const filteredPriorityHigh = rows.filter(r => r.priority === 'High').length;
+  const ownerCards = ownerSummary(rows).slice(0, 6);
+
+  return `<div class="infosec-shell min-h-0 overflow-visible">
+    <section class="infosec-panel min-h-0 rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="infosec-head">
+        <div>
+          <h3>Baseline Backlog From Device B 36% Scan</h3>
+          <div class="pilot-sub">This is the shared execution workspace for the broader hardening program. It blends the old InfoSec and Team views into one filtered backlog so the same data can be read by security, endpoint, identity, and infrastructure teams without context switching.</div>
+        </div>
+        <div class="stamp">March 5, 2026 baseline</div>
+      </div>
+      <div class="infosec-summary">
+        <div class="infosec-stat"><strong>${rows.length}</strong><span>Visible Failures</span></div>
+        <div class="infosec-stat"><strong>${filteredHigh}</strong><span>High Severity</span></div>
+        <div class="infosec-stat"><strong>${filteredPriorityHigh}</strong><span>Owner High Priority</span></div>
+        <div class="infosec-stat"><strong>${owners.length}</strong><span>Owner Lanes</span></div>
+      </div>
+      <div class="infosec-toolbar">
+        <div class="infosec-filters">
+          <input type="text" placeholder="Search baseline backlog" value="${escAttr(infoSecSearch)}" oninput="setInfoSecSearch(this.value)">
+          <select onchange="setInfoSecOwner(this.value)">
+            <option value="">All owners</option>
+            ${owners.map(owner => `<option value="${escAttr(owner)}" ${infoSecOwner === owner ? 'selected' : ''}>${owner}</option>`).join('')}
+          </select>
+          <select onchange="setInfoSecSeverity(this.value)">
+            <option value="">All severities</option>
+            ${['High','Medium','Low'].map(v => `<option value="${v}" ${infoSecSeverity === v ? 'selected' : ''}>${v}</option>`).join('')}
+          </select>
+          <select onchange="setInfoSecPriority(this.value)">
+            <option value="">All priorities</option>
+            ${['High','Medium','Low'].map(v => `<option value="${v}" ${infoSecPriority === v ? 'selected' : ''}>${v}</option>`).join('')}
+          </select>
+          <select onchange="setInfoSecPageSize(this.value)">
+            ${[8,12,16,24].map(size => `<option value="${size}" ${infoSecPageSize === size ? 'selected' : ''}>${size} per page</option>`).join('')}
+          </select>
+        </div>
+        <div class="infosec-actions">
+          <button class="action-btn primary" onclick="syncSharedState()">Save Shared Notes</button>
+          <button class="action-btn" onclick="exportInfoSecState()">Export JSON</button>
+          <button class="action-btn" onclick="document.getElementById('infosecImport').click()">Import JSON</button>
+          <input id="infosecImport" type="file" accept="application/json" style="display:none" onchange="importInfoSecState(event)">
+          <span class="sync-chip">${syncStatus}</span>
+        </div>
+      </div>
+      <div class="infosec-owner-grid">
+        ${ownerCards.map(card => `
+          <article class="owner-card">
+            <div class="name">${card.owner}</div>
+            <div class="meta">${card.count} failed controls visible. ${card.high} high, ${card.medium} medium, ${card.low} low.</div>
+          </article>
+        `).join('')}
+      </div>
+      <div class="infosec-list min-h-0 max-h-[70vh] overflow-y-auto pr-1">
+        ${pageRows.map(item => `
+          <article class="infosec-item">
+            <div class="infosec-item-head">
+              <div class="infosec-item-top">
+                <div>
+                  <div class="infosec-item-id">${item.id}</div>
+                  <div class="infosec-item-title">${item.title}</div>
+                  <div class="infosec-item-subids">
+                    <span class="subid-chip">Benchmark ${item.ruleId}</span>
+                    <span class="subid-chip">${item.bucket || 'General'} lane</span>
+                  </div>
+                </div>
+                <div class="list-badges">
+                  <span class="info-badge sev-${item.severity.toLowerCase()}">${item.severity}</span>
+                  <span class="badge ${item.priority === 'High' ? 'failed' : item.priority === 'Medium' ? 'partial' : 'proven'}">${item.priority} Priority</span>
+                </div>
+              </div>
+              <div class="infosec-item-copy">${item.finding}</div>
+            </div>
+            <div class="infosec-item-body">
+              <div class="infosec-grid">
+                <div class="infosec-field">
+                  <label>Detail About The Finding</label>
+                  <div class="value">${item.finding}</div>
+                </div>
+                <div class="infosec-field">
+                  <label>Why It Matters</label>
+                  <div class="value">${item.why}</div>
+                </div>
+                <div class="infosec-field">
+                  <label>Accountable Team</label>
+                  <div class="value">${item.owner}</div>
+                </div>
+                <div class="infosec-field">
+                  <label>Best Deployment Path</label>
+                  <div class="value">${item.method}</div>
+                </div>
+              </div>
+              <div class="infosec-controls">
+                <div class="infosec-field">
+                  <label>Owner</label>
+                  <select onchange="updateInfoSecItem('${item.id}','owner',this.value)">
+                    ${TEAM_OPTIONS.map(owner => `<option value="${owner}" ${item.owner === owner ? 'selected' : ''}>${owner}</option>`).join('')}
+                  </select>
+                </div>
+                <div class="infosec-field">
+                  <label>Priority</label>
+                  <select onchange="updateInfoSecItem('${item.id}','priority',this.value)">
+                    ${['High','Medium','Low'].map(priority => `<option value="${priority}" ${item.priority === priority ? 'selected' : ''}>${priority}</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+              <div class="infosec-note">
+                <div class="infosec-field">
+                  <label>Owner Note</label>
+                  <textarea onchange="updateInfoSecItem('${item.id}','note',this.value)" placeholder="Add blocker, implementation note, dependency, or retest status.">${escText(item.note)}</textarea>
+                </div>
+              </div>
+            </div>
+          </article>
+        `).join('')}
+      </div>
+      <div class="pager">
+        <div class="pager-note">Page ${infoSecPage} of ${totalPages}. This keeps the backlog readable instead of forcing one infinite scroll.</div>
+        <div class="pager-controls">
+          <button class="action-btn" onclick="setInfoSecPage(${Math.max(1, infoSecPage - 1)})" ${infoSecPage === 1 ? 'disabled' : ''}>Previous</button>
+          <button class="action-btn" onclick="setInfoSecPage(${Math.min(totalPages, infoSecPage + 1)})" ${infoSecPage === totalPages ? 'disabled' : ''}>Next</button>
+        </div>
+      </div>
+    </section>
+    <aside class="infosec-panel min-h-0 max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <h3>What Matters Most</h3>
+      <div class="pilot-sub">This keeps the project from drowning in all 159 failures at once. These are the workstreams that materially change readiness and stakeholder confidence.</div>
+      <div class="infosec-queue">
+        <article class="infosec-callout">
+          <div class="kicker">Immediate</div>
+          <div class="title">Audit the audit backlog</div>
+          <div class="copy">The baseline is dominated by audit gaps. That is good pilot material because it improves evidence quickly, but the Security log sizing defect must be fixed or the story remains inconsistent.</div>
+        </article>
+        <article class="infosec-callout">
+          <div class="kicker">Immediate</div>
+          <div class="title">Separate durable controls from lab wins</div>
+          <div class="copy">Password, lockout, and some local security settings can look good in a local test and still be overwritten later. Keep domain ownership visible in the notes before you call them enterprise-ready.</div>
+        </article>
+        <article class="infosec-callout">
+          <div class="kicker">Flag</div>
+          <div class="title">Do not let workbook status hide scan exceptions</div>
+          <div class="copy">The final 35 sheet is now aligned to your tested/passed intent, but the dashboard still needs to keep exceptions visible: Security log sizing, VBS regression, and PowerShell 2.0 evidence interpretation.</div>
+        </article>
+        <article class="infosec-callout">
+          <div class="kicker">Next Phase</div>
+          <div class="title">Expand beyond Windows-only evidence</div>
+          <div class="copy">Chrome and Edge are scan-proven. Firefox, Defender, .NET, Office, and IE should get the same backlog treatment once their remediation methods are rewritten and retested.</div>
+        </article>
+      </div>
+    </aside>
+  </div>`;
+}
+
+function renderReadiness() {
+  const rows = READINESS_ITEMS;
+  const ready = rows.filter(r => r.lane === 'Ready');
+  const qa = rows.filter(r => r.lane === 'QA');
+  const hold = rows.filter(r => r.lane === 'Hold');
+  const blockers = rows.filter(r => r.blocker !== 'None');
+  const appStates = [
+    { name:'Chrome', state:'Ready', note:'Scan-proven improvement' },
+    { name:'Edge', state:'Ready', note:'Scan-proven improvement' },
+    { name:'Firefox', state:'Blocked', note:'Policy surface mismatch remains' },
+    { name:'Defender', state:'Blocked', note:'Runtime settings do not satisfy STIG checks' },
+    { name:'.NET', state:'QA', note:'TLS setting set is incomplete' },
+    { name:'Office / IE', state:'Blocked', note:'Wrong or missing policy paths' }
+  ];
+
+  function lane(title, items) {
+    return `<section class="stage-lane">
+      <div class="stage-head"><span>${title}</span><span>${items.length}</span></div>
+      <div class="stage-body">
+        ${items.map(item => `
+          <article class="stage-card">
+            <div class="id">${item.id}</div>
+            <div class="title">${item.name}</div>
+            <div class="copy">${item.next}</div>
+            <div class="meta">
+              <span class="badge ${item.lane === 'Ready' ? 'proven' : item.lane === 'QA' ? 'partial' : 'failed'}">${item.stage}</span>
+              <span class="badge">${item.owner || 'Owner needed'}</span>
+              <span class="badge ${item.qa === 'Passed' ? 'proven' : item.qa === 'Blocked' ? 'failed' : 'partial'}">QA ${item.qa}</span>
+            </div>
+          </article>
+        `).join('')}
+      </div>
+    </section>`;
+  }
+
+  return `<div class="readiness-shell min-h-0 overflow-visible">
+    <section class="readiness-panel min-h-0 max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <h3>Wave 1 Release Readiness</h3>
+      <div class="pilot-sub">This view answers one question: is the current pilot wave ready to move forward, or do blockers still make the release story weak?</div>
+      <div class="readiness-grid">
+        <div class="readiness-stat"><strong>${ready.length}</strong><span>Ready</span></div>
+        <div class="readiness-stat"><strong>${qa.length}</strong><span>In QA</span></div>
+        <div class="readiness-stat"><strong>${hold.length}</strong><span>Hold</span></div>
+        <div class="readiness-stat"><strong>${Math.round((ready.length / rows.length) * 100)}%</strong><span>Readiness score</span></div>
+      </div>
+      <div class="stage-board">
+        ${lane('Ready For Pilot Ring', ready)}
+        ${lane('Still In QA / Validation', qa)}
+        ${lane('Hold Before Release', hold)}
+      </div>
+    </section>
+    <aside class="readiness-panel min-h-0 max-h-[70vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <h3>Blockers And Evidence</h3>
+      <div class="pilot-sub">Release readiness is only trustworthy if blockers, app validation, rollback posture, and ownership are visible together.</div>
+      <div class="infosec-queue">
+        ${blockers.map(item => `
+          <article class="infosec-callout">
+            <div class="kicker">${item.id}</div>
+            <div class="title">${item.blocker}</div>
+            <div class="copy">${item.next} Rollback: ${item.rollback}.</div>
+          </article>
+        `).join('')}
+      </div>
+      <div style="margin-top:16px">
+        <h3 style="margin-bottom:8px">Application Readiness</h3>
+        <div class="stage-body" style="padding:0">
+          ${appStates.map(app => `
+            <article class="stage-card">
+              <div class="title">${app.name}</div>
+              <div class="copy">${app.note}</div>
+              <div class="meta"><span class="badge ${app.state === 'Ready' ? 'proven' : app.state === 'QA' ? 'partial' : 'failed'}">${app.state}</span></div>
+            </article>
+          `).join('')}
+        </div>
+      </div>
+    </aside>
+  </div>`;
+}
+
+function renderTeams() {
+  const rows = getInfoSecRows();
+  if (!rows.length) return emptyState();
+  const grouped = ownerSummary(rows);
+  return `<div class="team-shell">
+    <div class="infosec-panel">
+      <div class="infosec-head">
+        <div>
+          <h3>Team Workboards</h3>
+          <div class="pilot-sub">Instead of making a separate tab for every team, this gives you one operations view with a clean lane for each accountable group. It scales better and still reads like an executive-quality dashboard.</div>
+        </div>
+        <div class="stamp">Cross-team execution</div>
+      </div>
+    </div>
+    <div class="team-grid">
+      ${grouped.map(group => {
+        const items = rows.filter(row => row.owner === group.owner);
+        return `<section class="team-panel">
+          <div class="team-section-head">
+            <div>
+              <h3>${group.owner}</h3>
+              <div class="team-section-note">Showing all ${items.length} filtered findings for this team.</div>
+            </div>
+            <div class="team-stats">
+              <span class="info-badge sev-high">${group.high} High</span>
+              <span class="info-badge sev-medium">${group.medium} Medium</span>
+              <span class="info-badge sev-low">${group.low} Low</span>
+              <span class="badge pending">${group.count} Total</span>
+            </div>
+          </div>
+          <div class="team-card-list">
+            ${items.map(item => `
+              <article class="team-mini">
+                <div class="id">${item.id} · ${item.ruleId}</div>
+                <div class="title">${item.title}</div>
+                <div class="copy">${item.focus}</div>
+                <div class="team-pager">
+                  <span class="badge ${item.priority === 'High' ? 'failed' : item.priority === 'Medium' ? 'partial' : 'proven'}">${item.priority} Priority</span>
+                  <span class="badge ops-true">${item.owner}</span>
+                </div>
+              </article>
+            `).join('')}
+          </div>
+        </section>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════
+   MATRIX VIEW
+══════════════════════════════════════ */
+const IMP_Y  = { High:3, Medium:2, Low:1 };
+const FRI_X  = { None:1, Noticeable:2, Disruptive:3 };
+const TIER_COL = { 'Tier 1':'#0B7A8C', 'Tier 2':'#1E4A8C', 'Tier 3':'#9B2335' };
+
+function renderMatrix(rows) {
+  if (!rows.length) return emptyState();
+  const W=560, H=340, ML=60, MB=48, MT=20, MR=20;
+  const cW=W-ML-MR, cH=H-MB-MT;
+  const LABELS_X=['','None','Noticeable','Disruptive'];
+  const LABELS_Y=['','Low','Medium','High'];
+
+  // group by position to handle overlap
+  const byPos = {};
+  rows.forEach(r => {
+    const key = `${FRI_X[r.fri]}_${IMP_Y[r.imp]}`;
+    if (!byPos[key]) byPos[key] = [];
+    byPos[key].push(r);
+  });
+
+  let dots = '';
+  Object.entries(byPos).forEach(([key, group]) => {
+    const [xi,yi] = key.split('_').map(Number);
+    const cx = ML + (xi-1)/(3-1)*cW;
+    const cy = MT + (3-yi)/(3-1)*cH;
+    const r0 = 10 + group.length * 4;
+    // draw a cluster circle
+    const col = TIER_COL[group[0].tier] || '#555';
+    const ids = group.map(r=>escJ(r.id)).join('|');
+    if (group.length===1) {
+      const r=group[0];
+      dots += `<circle class="matrix-dot" cx="${cx}" cy="${cy}" r="11"
+        fill="${TIER_COL[r.tier]}" fill-opacity=".82" stroke="${TIER_COL[r.tier]}" stroke-width="1.5"
+        onclick="openPanel('${escJ(r.id)}')" title="${r.name}">
+        <title>${r.name} (${r.tier})</title></circle>
+        <text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="8" fill="#fff" font-family="Segoe UI,Arial" pointer-events="none">${r.tier.replace('Tier ','T')}</text>`;
+    } else {
+      // multi-dot: draw offset circles
+      group.forEach((r,i) => {
+        const angle = (i/group.length)*2*Math.PI - Math.PI/2;
+        const dist = group.length > 2 ? 12 : 8;
+        const dx = Math.cos(angle)*dist, dy = Math.sin(angle)*dist;
+        dots += `<circle class="matrix-dot" cx="${cx+dx}" cy="${cy+dy}" r="9"
+          fill="${TIER_COL[r.tier]}" fill-opacity=".8" stroke="${TIER_COL[r.tier]}" stroke-width="1.5"
+          onclick="openPanel('${escJ(r.id)}')" title="${r.name}">
+          <title>${r.name} (${r.tier})</title></circle>`;
+      });
+    }
+  });
+
+  let gridLines = '', axisX = '', axisY = '';
+  [1,2,3].forEach(i => {
+    const x = ML + (i-1)/(3-1)*cW;
+    const y = MT + (3-i)/(3-1)*cH;
+    gridLines += `<line class="grid-line" x1="${x}" y1="${MT}" x2="${x}" y2="${MT+cH}"/>`;
+    gridLines += `<line class="grid-line" x1="${ML}" y1="${y}" x2="${ML+cW}" y2="${y}"/>`;
+    axisX += `<text class="axis-label" x="${x}" y="${MT+cH+20}" text-anchor="middle">${LABELS_X[i]}</text>`;
+    axisY += `<text class="axis-label" x="${ML-8}" y="${y+4}" text-anchor="end">${LABELS_Y[i]}</text>`;
+  });
+
+  // zone shading
+  const zones = [
+    {x:ML,y:MT,w:cW/2,h:cH/2,fill:'#E3F4F6',label:'Safe to Deploy'},
+    {x:ML+cW/2,y:MT+cH/2,w:cW/2,h:cH/2,fill:'#FAEAEA',label:'Defer & Review'}
+  ];
+  let zoneHTML = zones.map(z=>`<rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" fill="${z.fill}" fill-opacity=".4" rx="4"/>
+    <text class="zone-label" x="${z.x+z.w/2}" y="${z.y+14}" text-anchor="middle">${z.label}</text>`).join('');
+
+  return `<div class="matrix-scroll min-h-0 h-full overflow-y-auto pr-1"><div class="matrix-wrap rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="matrix-title">Risk Matrix — Security Impact vs User Friction</div>
+    <div class="matrix-sub">Each dot represents a control. Click to view details. Dots cluster when multiple controls share the same position.</div>
+    <div class="matrix-chart">
+      <svg class="matrix-svg" viewBox="0 0 ${W} ${H}">
+        ${zoneHTML}
+        ${gridLines}
+        <text class="axis-label" x="${ML+cW/2}" y="${H-4}" text-anchor="middle" font-weight="600">User Friction →</text>
+        <text class="axis-label" x="12" y="${MT+cH/2}" text-anchor="middle" transform="rotate(-90,12,${MT+cH/2})" font-weight="600">Security Impact →</text>
+        ${axisX}${axisY}
+        ${dots}
+      </svg>
+    </div>
+    <div class="matrix-legend">
+      ${Object.entries(TIER_COL).map(([t,c])=>`<div class="leg-item"><div class="leg-dot" style="background:${c}"></div>${t}</div>`).join('')}
+      <div class="leg-item" style="margin-left:auto;font-size:10px;color:#aaa">Click any dot to open details</div>
+    </div>
+  </div></div>`;
+}
+
+/* ══════════════════════════════════════
+   RENDER DISPATCHER
+══════════════════════════════════════ */
+function render() {
+  const rows = getFiltered();
+  updateHero(rows);
+  const total = D.length, shown = rows.length;
+  const pilotShown = rows.filter(r=>r.pilot).length;
+  const provenShown = rows.filter(r=>r.validation==='Proven').length;
+  const meta = VIEW_META[curView] || VIEW_META.board;
+  document.getElementById('viewTitle').textContent = meta.title;
+  document.getElementById('viewCopy').textContent = meta.copy;
+  document.getElementById('viewPill').textContent = meta.pill;
+  if (curView === 'infosec') {
+    const infoRows = getInfoSecRows();
+    document.getElementById('resultBar').textContent = `Showing ${infoRows.length} of ${INFOSEC_ITEMS.length} failed Windows 11 controls from the March 5, 2026 Device B baseline`;
+  } else if (curView === 'readiness') {
+    const ready = READINESS_ITEMS.filter(r => r.lane === 'Ready').length;
+    const hold = READINESS_ITEMS.filter(r => r.lane === 'Hold').length;
+    document.getElementById('resultBar').textContent = `Wave 1 readiness view · ${ready} ready · ${hold} blocked before pilot release`;
+  } else {
+    document.getElementById('resultBar').textContent =
+      shown === total
+        ? `Showing all ${total} controls · ${pilotShown} pilot controls in scope · ${provenShown} scan-proven`
+        : `Showing ${shown} of ${total} controls · ${pilotShown} pilot controls visible · ${provenShown} scan-proven`;
+  }
+  let html = '';
+  if      (curView==='board')  html = renderBoard(rows);
+  else if (curView==='pilot')  html = renderPilot(rows);
+  else if (curView==='infosec') html = renderInfoSec();
+  else if (curView==='readiness') html = renderReadiness();
+  else if (curView==='cat')    html = renderCat(rows);
+  else if (curView==='matrix') html = renderMatrix(rows);
+  document.getElementById('viewContent').innerHTML = html;
+}
+
+/* ══════════════════════════════════════
+   DETAIL PANEL
+══════════════════════════════════════ */
+function openPanel(id) {
+  const r = D.find(x=>x.id===id);
+  if (!r) return;
+  const tc = tierClass(r.tier);
+  document.getElementById('dp-tier').textContent = `${r.tier} · ${r.status}`;
+  document.getElementById('dp-tier').className = `dp-tier ${tc}`;
+  document.getElementById('dp-name').textContent = r.name;
+  document.getElementById('dp-id').textContent   = r.id;
+
+  document.getElementById('dp-body').innerHTML = `
+    <div class="dp-badges">
+      ${catChip(r.cat)}
+      ${impBadge(r.imp)}
+      ${friBadge(r.fri)}
+      ${validationBadge(r.validation)}
+      ${r.pilot?'<span class="badge pilot">Phase 1 Device B QA Pilot</span>':''}
+      ${r.ops?'<span class="ops-chip">✓ Ops Checklist</span>':''}
+    </div>
+    <div class="dp-divider"></div>
+    <div class="dp-field">
+      <label>Why it matters / Notes</label>
+      <div class="dval italic">${r.notes}</div>
+    </div>
+    <div class="dp-field">
+      <label>Risk if not implemented</label>
+      <div class="dval risk-val">${r.risk} risk exposure</div>
+    </div>
+    <div class="dp-field">
+      <label>Deployment Status</label>
+      <div class="dval">${r.status}</div>
+    </div>
+    <div class="dp-field">
+      <label>Mapped Script / Remediation Path</label>
+      <div class="dval">${r.script}</div>
+    </div>
+    <div class="dp-field">
+      <label>Validation Summary</label>
+      <div class="dval">${r.evidence}</div>
+    </div>
+    <div class="dp-field">
+      <label>Device B Scan Progression</label>
+      <div class="evidence-grid">
+        <div class="evidence-cell">
+          <label>Pre 36</label>
+          <div class="state">${r.pre36}</div>
+        </div>
+        <div class="evidence-cell">
+          <label>Post 45</label>
+          <div class="state">${r.post45}</div>
+        </div>
+        <div class="evidence-cell">
+          <label>Post 51</label>
+          <div class="state">${r.post51}</div>
+        </div>
+      </div>
+    </div>
+    ${r.reg ? `<div class="dp-divider"></div>
+    <div class="dp-field">
+      <label>STIG Technical Setting</label>
+      <div class="dval dp-code">${r.reg.replace(/\|/g, '<br>◆ ')}</div>
+    </div>` : ''}
+    ${r.gpo ? `<div class="dp-field">
+      <label>Policy Deployment Path</label>
+      <div class="dval dp-code gpo-val">${r.gpo.replace(/\|/g, '<br>◆ ')}</div>
+    </div>` : ''}
+  `;
+
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+function closePanel() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('detailPanel').classList.remove('open');
+}
+
+/* ══════════════════════════════════════
+   UI HELPERS
+══════════════════════════════════════ */
+function switchView(v, el) {
+  curView = v;
+  document.querySelectorAll('.view-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function toggleOps() {
+  opsOnly = !opsOnly;
+  document.getElementById('opsToggle').classList.toggle('on', opsOnly);
+  render();
+}
+
+function togglePilot() {
+  pilotOnly = !pilotOnly;
+  document.getElementById('pilotToggle').classList.toggle('on', pilotOnly);
+  render();
+}
+
+function setSidebarTier(t) {
+  const sel = document.getElementById('fTier');
+  sel.value = (sel.value === t) ? '' : t;
+  render();
+}
+
+function resetAll() {
+  document.getElementById('q').value='';
+  document.getElementById('fTier').value='';
+  document.getElementById('fCat').value='';
+  document.getElementById('fImp').value='';
+  document.getElementById('fFri').value='';
+  document.getElementById('fValidation').value='';
+  opsOnly=false;
+  pilotOnly=false;
+  document.getElementById('opsToggle').classList.remove('on');
+  document.getElementById('pilotToggle').classList.remove('on');
+  render();
+}
+
+function toggleCatGroup(hdr) {
+  hdr.classList.toggle('collapsed');
+  hdr.nextElementSibling.classList.toggle('collapsed');
+}
+
+function toggleListRow(rowId, detId, id) {
+  const row = document.getElementById(rowId);
+  const det = document.getElementById(detId);
+  const isOpen = det.classList.contains('open');
+  // close all others
+  document.querySelectorAll('.list-detail.open').forEach(d=>d.classList.remove('open'));
+  document.querySelectorAll('.list-row.expanded').forEach(r=>r.classList.remove('expanded'));
+  if (!isOpen) { det.classList.add('open'); row.classList.add('expanded'); }
+}
+
+function emptyState() {
+  return `<div class="empty"><div class="e-icon">🔍</div><p>No controls match the current filters.</p></div>`;
+}
+
+function escJ(s){ return (s||'').replace(/'/g,"\\'"); }
+function escAttr(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function escText(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function setInfoSecSearch(value) {
+  infoSecSearch = value;
+  infoSecPage = 1;
+  render();
+}
+
+function setInfoSecOwner(value) {
+  infoSecOwner = value;
+  infoSecPage = 1;
+  render();
+}
+
+function setInfoSecSeverity(value) {
+  infoSecSeverity = value;
+  infoSecPage = 1;
+  render();
+}
+
+function setInfoSecPriority(value) {
+  infoSecPriority = value;
+  infoSecPage = 1;
+  render();
+}
+
+function setInfoSecPage(value) {
+  infoSecPage = Number(value);
+  render();
+}
+
+function setInfoSecPageSize(value) {
+  infoSecPageSize = Number(value);
+  infoSecPage = 1;
+  render();
+}
+
+function updateInfoSecItem(id, field, value) {
+  if (!infoSecState[id]) infoSecState[id] = {};
+  infoSecState[id][field] = value;
+  saveInfoSecState();
+  const item = INFOSEC_ITEMS.find(row => row.id === id);
+  if (item) item[field] = value;
+  persistSharedState();
+  render();
+}
+
+async function hydrateSharedState() {
+  if (!/^https?:/.test(window.location.protocol)) return;
+  try {
+    const res = await fetch(INFOSEC_STATE_API, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const serverState = await res.json();
+    infoSecState = { ...infoSecState, ...serverState };
+    INFOSEC_ITEMS.forEach(item => {
+      const state = infoSecState[item.id] || {};
+      if (state.owner) item.owner = state.owner;
+      if (state.priority) item.priority = state.priority;
+      if (typeof state.note === 'string') item.note = state.note;
+    });
+    syncStatus = 'Connected to shared server state';
+  } catch {
+    syncStatus = 'Shared server unavailable, using local state';
+  }
+  render();
+}
+
+async function persistSharedState() {
+  if (!/^https?:/.test(window.location.protocol)) return;
+  try {
+    const res = await fetch(INFOSEC_STATE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(infoSecState)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    syncStatus = 'Shared server state saved';
+  } catch {
+    syncStatus = 'Save stayed local only';
+  }
+  render();
+}
+
+function syncSharedState() {
+  persistSharedState();
+}
+
+function exportInfoSecState() {
+  const blob = new Blob([JSON.stringify(infoSecState, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'stig-infosec-state.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importInfoSecState(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(String(reader.result || '{}'));
+      infoSecState = { ...infoSecState, ...parsed };
+      saveInfoSecState();
+      INFOSEC_ITEMS.forEach(item => {
+        const state = infoSecState[item.id] || {};
+        if (state.owner) item.owner = state.owner;
+        if (state.priority) item.priority = state.priority;
+        if (typeof state.note === 'string') item.note = state.note;
+      });
+      syncStatus = 'Imported JSON state';
+      persistSharedState();
+      render();
+    } catch {
+      syncStatus = 'Import failed';
+      render();
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+buildCatBars();
+render();
+hydrateSharedState();
+</script>
+</body>
+</html>

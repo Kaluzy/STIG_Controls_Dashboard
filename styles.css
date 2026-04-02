@@ -1,0 +1,284 @@
+:root {
+  --bg: #f3efe5;
+  --bg-panel: rgba(255, 251, 245, 0.9);
+  --ink: #1f2a22;
+  --muted: #59645b;
+  --line: rgba(31, 42, 34, 0.12);
+  --ready: #2e7d4f;
+  --qa: #bc7a1d;
+  --hold: #964444;
+  --accent: #173d36;
+  --shadow: 0 20px 45px rgba(34, 31, 24, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(23, 61, 54, 0.12), transparent 34%),
+    radial-gradient(circle at top right, rgba(188, 122, 29, 0.14), transparent 28%),
+    linear-gradient(180deg, #f9f6ef 0%, var(--bg) 100%);
+}
+
+.page-shell {
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 56px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.5fr 0.9fr;
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.hero-copy,
+.hero-card,
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.hero-copy {
+  padding: 28px;
+}
+
+.hero-card {
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+  align-content: center;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: clamp(2.3rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  margin-bottom: 14px;
+}
+
+.hero-text {
+  max-width: 42rem;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.hero-stat .label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin-bottom: 6px;
+}
+
+.hero-stat strong {
+  font-size: 1.05rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+}
+
+.panel {
+  padding: 22px;
+}
+
+.overview-panel,
+.filters-panel,
+.devices-panel {
+  grid-column: span 4;
+}
+
+.table-panel {
+  grid-column: 1 / -1;
+}
+
+.section-heading h2 {
+  margin-bottom: 18px;
+  font-size: 1.45rem;
+}
+
+.overview-cards {
+  display: grid;
+  gap: 12px;
+}
+
+.summary-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.summary-card strong {
+  display: block;
+  font-size: 1.6rem;
+  margin-bottom: 4px;
+}
+
+.filters {
+  display: grid;
+  gap: 12px;
+}
+
+.filters label {
+  display: grid;
+  gap: 6px;
+}
+
+.filters span {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #fffdf8;
+  color: var(--ink);
+  font: inherit;
+}
+
+.device-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.device-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.52);
+}
+
+.device-tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 7px 10px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.device-a {
+  background: rgba(23, 61, 54, 0.12);
+  color: var(--accent);
+}
+
+.device-b {
+  background: rgba(188, 122, 29, 0.14);
+  color: #925f12;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+td small {
+  display: block;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.45;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.lane-ready {
+  background: rgba(46, 125, 79, 0.12);
+  color: var(--ready);
+}
+
+.lane-qa {
+  background: rgba(188, 122, 29, 0.14);
+  color: var(--qa);
+}
+
+.lane-hold {
+  background: rgba(150, 68, 68, 0.12);
+  color: var(--hold);
+}
+
+.risk {
+  font-weight: 700;
+}
+
+.evidence-links {
+  display: grid;
+  gap: 6px;
+}
+
+.evidence-links a {
+  color: var(--accent);
+}
+
+@media (max-width: 960px) {
+  .hero,
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-panel,
+  .filters-panel,
+  .devices-panel,
+  .table-panel {
+    grid-column: auto;
+  }
+}
