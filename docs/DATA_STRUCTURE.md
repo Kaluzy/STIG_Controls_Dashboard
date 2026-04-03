@@ -17,6 +17,8 @@ This app now separates presentation from project data and operating rules.
   - team ownership mapping by category
   - control-specific ownership overrides
   - scoring maps and priority bucket rules
+  - shared team catalog
+  - lifecycle stage options
 
 - `data/baseline-data.js`
   - baseline failed controls from the Device B 36% evidence set
@@ -25,6 +27,7 @@ This app now separates presentation from project data and operating rules.
   - backlog-specific priority overrides
   - baseline scoring weights
   - known rule-level focus overrides
+  - severity, priority, and paging option lists
 
 - `data/infosec-content.js`
   - backlog owner inference rules

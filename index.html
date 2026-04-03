@@ -1806,6 +1806,27 @@ const CONTROL_OVERRIDES = CONTROL_CONFIG.controlOverrides || {};
 const SECURITY_VALUE_MAP = CONTROL_CONFIG.securityValueMap || { High: 5, Medium: 3, Low: 1 };
 const FRICTION_VALUE_MAP = CONTROL_CONFIG.frictionValueMap || { None: 1, Noticeable: 3, Disruptive: 5 };
 const RISK_VALUE_MAP = CONTROL_CONFIG.riskValueMap || { High: 5, Medium: 3, Low: 1 };
+const TEAM_OPTIONS = CONTROL_CONFIG.teamOptions || [
+  'Endpoint Security Engineering',
+  'Identity & Access Engineering',
+  'Security Operations & Detection',
+  'Infrastructure & Trust Services',
+  'Browser & Application Engineering'
+];
+const LIFECYCLE_OPTIONS = CONTROL_CONFIG.lifecycleOptions || [
+  'Candidate',
+  'Prioritized',
+  'Owner Assigned',
+  'Ready for Test',
+  'Implemented in Lab',
+  'Smoke Tested',
+  'QA Requested',
+  'QA Passed',
+  'RFC Ready',
+  'Released',
+  'Rolled Back',
+  'Deferred'
+];
 const PRIORITY_BUCKETS = CONTROL_CONFIG.priorityBuckets || [
   { min: 55, label: 'Highest Value' },
   { min: 42, label: 'Safe Quick Win' },
@@ -1815,6 +1836,9 @@ const PRIORITY_BUCKETS = CONTROL_CONFIG.priorityBuckets || [
 const INFOSEC_SCORE_BY_SEVERITY = INFOSEC_CONFIG.scoreBySeverity || { High: 5, Medium: 3, Low: 1 };
 const INFOSEC_SCORE_BY_PRIORITY = INFOSEC_CONFIG.scoreByPriority || { High: 5, Medium: 3, Low: 1 };
 const INFOSEC_DEFAULT_PRIORITY_BY_SEVERITY = INFOSEC_CONFIG.defaultPriorityBySeverity || { High: 'High', Medium: 'Medium', Low: 'Low' };
+const INFOSEC_SEVERITY_OPTIONS = INFOSEC_CONFIG.severityOptions || ['High', 'Medium', 'Low'];
+const INFOSEC_PRIORITY_OPTIONS = INFOSEC_CONFIG.priorityOptions || ['High', 'Medium', 'Low'];
+const INFOSEC_PAGE_SIZE_OPTIONS = INFOSEC_CONFIG.pageSizeOptions || [8, 12, 16, 24];
 const INFOSEC_OVERRIDES = INFOSEC_CONFIG.ruleOverrides || {};
 const INFOSEC_FOCUS_OVERRIDES = INFOSEC_CONFIG.focusOverrides || {};
 const inferInfoSecOwner = INFOSEC_CONTENT.inferOwner || ((ruleId, title) => 'Endpoint Security Engineering');
@@ -1918,27 +1942,6 @@ const CATS = [...new Set(D.map(r=>r.cat))].sort();
 let opsOnly = false, pilotOnly = false, curView = 'board';
 const INFOSEC_STORAGE_KEY = 'stig-infosec-state-v2';
 const INFOSEC_STATE_API = '/api/infosec-state';
-const TEAM_OPTIONS = [
-  'Endpoint Security Engineering',
-  'Identity & Access Engineering',
-  'Security Operations & Detection',
-  'Infrastructure & Trust Services',
-  'Browser & Application Engineering'
-];
-const LIFECYCLE_OPTIONS = [
-  'Candidate',
-  'Prioritized',
-  'Owner Assigned',
-  'Ready for Test',
-  'Implemented in Lab',
-  'Smoke Tested',
-  'QA Requested',
-  'QA Passed',
-  'RFC Ready',
-  'Released',
-  'Rolled Back',
-  'Deferred'
-];
 let infoSecOwner = '';
 let infoSecSeverity = '';
 let infoSecPriority = '';
@@ -2384,14 +2387,14 @@ function renderInfoSec() {
           </select>
           <select onchange="setInfoSecSeverity(this.value)">
             <option value="">All severities</option>
-            ${['High','Medium','Low'].map(v => `<option value="${v}" ${infoSecSeverity === v ? 'selected' : ''}>${v}</option>`).join('')}
+            ${INFOSEC_SEVERITY_OPTIONS.map(v => `<option value="${v}" ${infoSecSeverity === v ? 'selected' : ''}>${v}</option>`).join('')}
           </select>
           <select onchange="setInfoSecPriority(this.value)">
             <option value="">All priorities</option>
-            ${['High','Medium','Low'].map(v => `<option value="${v}" ${infoSecPriority === v ? 'selected' : ''}>${v}</option>`).join('')}
+            ${INFOSEC_PRIORITY_OPTIONS.map(v => `<option value="${v}" ${infoSecPriority === v ? 'selected' : ''}>${v}</option>`).join('')}
           </select>
           <select onchange="setInfoSecPageSize(this.value)">
-            ${[8,12,16,24].map(size => `<option value="${size}" ${infoSecPageSize === size ? 'selected' : ''}>${size} per page</option>`).join('')}
+            ${INFOSEC_PAGE_SIZE_OPTIONS.map(size => `<option value="${size}" ${infoSecPageSize === size ? 'selected' : ''}>${size} per page</option>`).join('')}
           </select>
         </div>
         <div class="infosec-actions">
@@ -2465,7 +2468,7 @@ function renderInfoSec() {
                 <div class="infosec-field">
                   <label>Priority</label>
                   <select onchange="updateInfoSecItem('${item.id}','priority',this.value)">
-                    ${['High','Medium','Low'].map(priority => `<option value="${priority}" ${item.priority === priority ? 'selected' : ''}>${priority}</option>`).join('')}
+                    ${INFOSEC_PRIORITY_OPTIONS.map(priority => `<option value="${priority}" ${item.priority === priority ? 'selected' : ''}>${priority}</option>`).join('')}
                   </select>
                 </div>
                 <div class="infosec-field">

@@ -2,6 +2,9 @@ window.STIG_INFOSEC_CONFIG = {
   scoreBySeverity: { High: 5, Medium: 3, Low: 1 },
   scoreByPriority: { High: 5, Medium: 3, Low: 1 },
   defaultPriorityBySeverity: { High: "High", Medium: "Medium", Low: "Low" },
+  severityOptions: ["High", "Medium", "Low"],
+  priorityOptions: ["High", "Medium", "Low"],
+  pageSizeOptions: [8, 12, 16, 24],
   ruleOverrides: {
     "WN11-AU-000505": { priority: "High", owner: "Security Operations & Detection" },
     "WN11-00-000031": { priority: "High", owner: "Endpoint Security Engineering" },

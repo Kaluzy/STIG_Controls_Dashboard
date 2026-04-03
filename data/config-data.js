@@ -43,6 +43,27 @@ window.STIG_CONTROL_CONFIG = {
   securityValueMap: { High: 5, Medium: 3, Low: 1 },
   frictionValueMap: { None: 1, Noticeable: 3, Disruptive: 5 },
   riskValueMap: { High: 5, Medium: 3, Low: 1 },
+  teamOptions: [
+    "Endpoint Security Engineering",
+    "Identity & Access Engineering",
+    "Security Operations & Detection",
+    "Infrastructure & Trust Services",
+    "Browser & Application Engineering"
+  ],
+  lifecycleOptions: [
+    "Candidate",
+    "Prioritized",
+    "Owner Assigned",
+    "Ready for Test",
+    "Implemented in Lab",
+    "Smoke Tested",
+    "QA Requested",
+    "QA Passed",
+    "RFC Ready",
+    "Released",
+    "Rolled Back",
+    "Deferred"
+  ],
   priorityBuckets: [
     { min: 55, label: "Highest Value" },
     { min: 42, label: "Safe Quick Win" },
