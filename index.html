@@ -1792,6 +1792,7 @@ body {
 <script src="./data/infosec-config.js"></script>
 <script src="./data/infosec-content.js"></script>
 <script src="./data/view-meta.js"></script>
+<script src="./data/reference-sources.js"></script>
 <script>
 /* ══════════════════════════════════════
    DATA
@@ -1803,6 +1804,7 @@ const CONTROL_CONFIG = window.STIG_CONTROL_CONFIG || {};
 const INFOSEC_CONFIG = window.STIG_INFOSEC_CONFIG || {};
 const INFOSEC_CONTENT = window.STIG_INFOSEC_CONTENT || {};
 const VIEW_META = window.STIG_VIEW_META || {};
+const REF_SOURCES = window.STIG_REFERENCE_SOURCES || {};
 const TEAM_BY_CATEGORY = CONTROL_CONFIG.teamByCategory || {};
 const CONTROL_OVERRIDES = CONTROL_CONFIG.controlOverrides || {};
 const SECURITY_VALUE_MAP = CONTROL_CONFIG.securityValueMap || { High: 5, Medium: 3, Low: 1 };
@@ -1849,6 +1851,7 @@ const inferInfoSecMethod = INFOSEC_CONTENT.inferMethod || (() => 'Policy-backed 
 const summarizeFinding = INFOSEC_CONTENT.summarizeFinding || ((ruleId, title) => `${title}.`);
 const inferInfoSecWhy = INFOSEC_CONTENT.inferWhy || (() => 'This is part of a cleaner Windows baseline and lowers attack surface without requiring a full hardening posture everywhere at once.');
 const inferInfoSecFocus = (ruleId, title) => (INFOSEC_CONTENT.inferFocus || (() => 'Assign the right owner, pick the durable implementation method, and only mark it complete after an SCC retest.'))(ruleId, title, INFOSEC_FOCUS_OVERRIDES);
+const WINDOWS11_REF = REF_SOURCES.windows11 || {};
 
 function defaultLifecycleStage(row) {
   if (row.validation === 'Failed') return 'Ready for Test';
@@ -2117,7 +2120,17 @@ function getFiltered() {
     if (fv && r.validation !== fv) return false;
     if (opsOnly && !r.ops)   return false;
     if (pilotOnly && !r.pilot) return false;
-    if (q && ![r.name,r.id,r.cat,r.notes,r.risk,r.script,r.validation,r.evidence].some(v=>String(v).toLowerCase().includes(q))) return false;
+    if (q && ![
+      r.name,
+      r.id,
+      r.cat,
+      r.notes,
+      r.risk,
+      r.script,
+      r.validation,
+      r.evidence,
+      ...(r.related_findings || []).map(f => `${f.id} ${f.label} ${f.summary} ${f.status}`)
+    ].some(v=>String(v).toLowerCase().includes(q))) return false;
     return true;
   });
 }
@@ -2808,9 +2821,22 @@ function openPanel(id) {
       <label>Validation Summary</label>
       <div class="dval">${r.evidence}</div>
     </div>
+    ${(r.related_findings && r.related_findings.length) ? `<div class="dp-field">
+      <label>Related Findings</label>
+      <div class="dval">${r.related_findings.map(f => `<div><strong>${f.id}</strong> · ${f.label} · ${f.status}<br>${f.summary}</div>`).join('<br>')}</div>
+    </div>` : ''}
     <div class="dp-field">
       <label>Decision Log</label>
       <div class="dval">${(r.decision_log || []).map(entry => `• ${entry}`).join('<br>')}</div>
+    </div>
+    <div class="dp-field">
+      <label>Reference Sources</label>
+      <div class="dval">
+        ${(r.related_findings && r.related_findings.length) ? `<div><strong>Related V-IDs:</strong> ${r.related_findings.map(f => f.id).join(', ')}</div>` : ''}
+        <div><a href="${WINDOWS11_REF.disaDownloadsUrl || '#'}" target="_blank" rel="noopener noreferrer">Official DISA STIG Downloads</a></div>
+        <div><a href="${WINDOWS11_REF.stigViewerUrl || '#'}" target="_blank" rel="noopener noreferrer">STIG Viewer Benchmark Page</a></div>
+        <div><a href="${WINDOWS11_REF.nistXccdfUrl || '#'}" target="_blank" rel="noopener noreferrer">NIST XCCDF Specification</a></div>
+      </div>
     </div>
     <div class="dp-field">
       <label>Device B Scan Progression</label>

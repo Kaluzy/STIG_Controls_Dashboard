@@ -1,0 +1,27 @@
+[
+  {
+    "scan_id": "device-b-win11-2026-04-01",
+    "device_id": "device-b",
+    "device_name": "MHL-PW06M2V2",
+    "benchmark": "Microsoft Windows 11 Security Technical Implementation Guide",
+    "benchmark_version": "002.007.016",
+    "scan_timestamp": "2026-04-01T00:00:00-04:00",
+    "source_file": "scans/inbox/device-b/2026-04-01/windows11-xccdf.xml",
+    "results": [
+      {
+        "control_id": "V-253369",
+        "rule_id": "WN11-00-0000XX",
+        "status": "fail",
+        "severity": "medium",
+        "title": "Virtualization-based Security must be enabled on Windows 11 with the platform security level configured to Secure Boot or Secure Boot with DMA Protection."
+      },
+      {
+        "control_id": "V-253337",
+        "rule_id": "WN11-AU-000500",
+        "status": "pass",
+        "severity": "medium",
+        "title": "The Application event log size must be configured to 32768 KB or greater."
+      }
+    ]
+  }
+]

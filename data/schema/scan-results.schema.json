@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stella.local/stig-pilot-control-center/schemas/scan-results.schema.json",
+  "title": "STIG Pilot Control Center Scan Results",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "scan_id",
+      "device_id",
+      "benchmark",
+      "scan_timestamp",
+      "results"
+    ],
+    "properties": {
+      "scan_id": { "type": "string" },
+      "device_id": { "type": "string" },
+      "device_name": { "type": "string" },
+      "benchmark": { "type": "string" },
+      "benchmark_version": { "type": "string" },
+      "scan_timestamp": { "type": "string" },
+      "source_file": { "type": "string" },
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["rule_id", "status"],
+          "properties": {
+            "control_id": { "type": "string" },
+            "rule_id": { "type": "string" },
+            "status": { "type": "string" },
+            "severity": { "type": "string" },
+            "title": { "type": "string" },
+            "check_ref": { "type": "string" },
+            "fix_ref": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

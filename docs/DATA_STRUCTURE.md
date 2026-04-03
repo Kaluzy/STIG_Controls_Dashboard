@@ -41,12 +41,37 @@ This app now separates presentation from project data and operating rules.
   - explainer copy
   - summary pill text for each main view
 
+- `data/reference-sources.js`
+  - DISA, NIST, and benchmark reference links
+
+- `data/schema/controls.schema.json`
+  - target normalized control catalog schema
+
+- `data/schema/scan-results.schema.json`
+  - target normalized scan result schema
+
+- `data/examples/normalized-scan-result.example.json`
+  - example output shape for future parser work
+
 ## What still lives in `index.html`
 
 - rendering logic
 - filter state
 - shared-state persistence
 - tab composition and layout behavior
+
+## Ingestion planning docs
+
+- [SOURCE_OF_TRUTH_MODEL.md](./SOURCE_OF_TRUTH_MODEL.md)
+- [SCAN_INGESTION_ARCHITECTURE.md](./SCAN_INGESTION_ARCHITECTURE.md)
+- [INGESTION_BUILD_PLAN.md](./INGESTION_BUILD_PLAN.md)
+- [SCAN_DROP_USAGE.md](./SCAN_DROP_USAGE.md)
+
+## Scan folder scaffold
+
+- `scans/inbox/`
+- `scans/processed/`
+- `scans/failed/`
 
 ## Why this structure is better
 
