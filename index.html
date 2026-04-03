@@ -1791,6 +1791,7 @@ body {
 <script src="./data/config-data.js"></script>
 <script src="./data/infosec-config.js"></script>
 <script src="./data/infosec-content.js"></script>
+<script src="./data/view-meta.js"></script>
 <script>
 /* ══════════════════════════════════════
    DATA
@@ -1801,6 +1802,7 @@ const CONTROL_META = window.STIG_CONTROL_META || {};
 const CONTROL_CONFIG = window.STIG_CONTROL_CONFIG || {};
 const INFOSEC_CONFIG = window.STIG_INFOSEC_CONFIG || {};
 const INFOSEC_CONTENT = window.STIG_INFOSEC_CONTENT || {};
+const VIEW_META = window.STIG_VIEW_META || {};
 const TEAM_BY_CATEGORY = CONTROL_CONFIG.teamByCategory || {};
 const CONTROL_OVERRIDES = CONTROL_CONFIG.controlOverrides || {};
 const SECURITY_VALUE_MAP = CONTROL_CONFIG.securityValueMap || { High: 5, Medium: 3, Low: 1 };
@@ -1949,38 +1951,6 @@ let infoSecSearch = '';
 let infoSecPage = 1;
 let infoSecPageSize = 12;
 let syncStatus = /^https?:/.test(window.location.protocol) ? 'Server sync available' : 'Local mode only';
-const VIEW_META = {
-  board: {
-    title: 'Command Center',
-    copy: 'The summary view for the selected Windows 11 control set. Use this to understand readiness, validation posture, and what matters most before rollout.',
-    pill: '35 selected controls'
-  },
-  pilot: {
-    title: 'Pilot Wave',
-    copy: 'The Device B QA workspace. This is only for the agreed pilot controls and answers a simple question: what is ready, what needs review, and what still blocks sign-off.',
-    pill: 'Device B pilot only'
-  },
-  infosec: {
-    title: 'Operations Backlog',
-    copy: 'The full baseline-failures workspace, blended with ownership and team participation. Use this to assign owners, set priority, add notes, and move the broader program forward.',
-    pill: 'Shared execution view'
-  },
-  readiness: {
-    title: 'Release Readiness',
-    copy: 'The release view tracks whether Wave 1 is actually ready to move. It separates controls that are scan-proven from items still waiting on QA, blockers, or ownership sign-off.',
-    pill: 'Wave and stage readiness'
-  },
-  cat: {
-    title: 'Control Library',
-    copy: 'A structured library of the selected controls by category. Use this when you want to read, compare, and open details without the rollout framing.',
-    pill: 'Browse by category'
-  },
-  matrix: {
-    title: 'Risk Matrix',
-    copy: 'A visual decision view that compares security value against user friction. Use this for sequencing and stakeholder discussions, not day-to-day task tracking.',
-    pill: 'Decision support'
-  }
-};
 
 function loadInfoSecState() {
   try {

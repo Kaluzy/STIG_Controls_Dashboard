@@ -36,12 +36,16 @@ This app now separates presentation from project data and operating rules.
   - why-it-matters text
   - focus guidance wording
 
+- `data/view-meta.js`
+  - tab titles
+  - explainer copy
+  - summary pill text for each main view
+
 ## What still lives in `index.html`
 
 - rendering logic
 - filter state
 - shared-state persistence
-- backlog wording helpers
 - tab composition and layout behavior
 
 ## Why this structure is better
