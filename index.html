@@ -1786,101 +1786,75 @@ body {
 </div>
 
 <script src="./data/baseline-data.js"></script>
+<script src="./data/controls-data.js"></script>
+<script src="./data/waves-data.js"></script>
+<script src="./data/config-data.js"></script>
+<script src="./data/infosec-config.js"></script>
+<script src="./data/infosec-content.js"></script>
 <script>
 /* ══════════════════════════════════════
    DATA
 ══════════════════════════════════════ */
-const RAW_D = [
-  {id:"V-253358",name:"Disable WDigest",cat:"Auth & Crypto",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Stops plaintext creds in LSASS, safe everywhere.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest\\UseLogonCredential = 0",gpo:"Computer Config >> Admin Templates >> MS Security Guide >> WDigest Authentication = Disabled"},
-  {id:"V-253460",name:"Kerberos AES-only",cat:"Auth & Crypto",tier:"Tier 1",imp:"Medium",fri:"None",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Legacy support only needed for old DCs.",reg:"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\Parameters\\SupportedEncryptionTypes = 0x7ffffff8",gpo:"Computer Config >> Security Settings >> Local Policies >> Security Options >> Network security: Configure encryption types allowed for Kerberos"},
-  {id:"V-253285",name:"Disable PowerShell 2.0",cat:"PowerShell & Scripting",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Feature absent on Windows 11, SCC mis-detects. Treat as secure-by-absence to avoid recurring investigation.",reg:"Disable-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root",gpo:"Windows Features >> Uncheck PowerShell 2.0"},
-  {id:"V-253367",name:"Cmdline in process logs",cat:"Audit & Logging",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Include command line in process creation events for better forensics.",reg:"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Audit\\ProcessCreationIncludeCmdLine_Enabled = 1",gpo:"Computer Config >> Admin Templates >> System >> Audit Process Creation >> Include command line = Enabled"},
-  {id:"V-253414",name:"PS script block logging",cat:"PowerShell & Scripting",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Logs script content for PowerShell-based attacks.",reg:"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging\\EnableScriptBlockLogging = 1",gpo:"Computer Config >> Admin Templates >> Windows Components >> Windows PowerShell >> Turn on Script Block Logging = Enabled"},
-  {id:"V-253437",name:"Audit subcategories",cat:"Audit & Logging",tier:"Tier 1",imp:"Medium",fri:"None",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Foundation control for detailed auditing.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\SCENoApplyLegacyAuditPolicy = 1",gpo:"Computer Config >> Security Settings >> Local Policies >> Security Options >> Audit: Force audit policy subcategory settings = Enabled"},
-  {id:"V-253399",name:"Disable Game DVR",cat:"Apps & Features",tier:"Tier 1",imp:"Low",fri:"None",status:"Tested / Passed",risk:"Low",ops:true,notes:"No business use, removes OS game recording vector.",reg:"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\GameDVR\\AllowGameDVR = 0",gpo:"Computer Config >> Admin Templates >> Windows Components >> Windows Game Recording and Broadcasting = Disabled"},
-  {id:"V-268317",name:"Disable Copilot",cat:"Apps & Features",tier:"Tier 1",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Blocks MS cloud AI pipeline. On this build, may require registry-only enforcement, SCC compliance may lag behind actual state.",reg:"HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot\\TurnOffWindowsCopilot = 1",gpo:"User Config >> Admin Templates >> Windows Components >> Windows Copilot >> Turn off Windows Copilot = Enabled"},
-  {id:"V-253413",name:"Disable auto sign-in after restart",cat:"Account & Logon",tier:"Tier 1",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Requires user to log on after system-initiated restart.",reg:"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\DisableAutomaticRestartSignOn = 1",gpo:"Computer Config >> Admin Templates >> Windows Components >> Windows Logon Options >> Sign-in last user automatically after restart = Disabled"},
-  {id:"V-253354",name:"IPv4 source routing off",cat:"Network",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Prevents IP source routing attacks, feature is obsolete.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\DisableIPSourceRouting = 2",gpo:"Computer Config >> Admin Templates >> MSS (Legacy) >> Disable IP source routing"},
-  {id:"V-253353",name:"IPv6 source routing off",cat:"Network",tier:"Tier 1",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Same as IPv4 source routing for IPv6.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip6\\Parameters\\DisableIPSourceRouting = 2",gpo:"Computer Config >> Admin Templates >> MSS (Legacy) >> Disable IPv6 source routing"},
-  {id:"V-253300",name:"Password history 24",cat:"Passwords",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Prevents simple password reuse, users will notice at change time.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Services\\Netlogon\\Parameters\\MaximumPasswordAge: Password History = 24",gpo:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Enforce password history = 24 passwords"},
-  {id:"V-253301",name:"Max password age ≤ 60 days",cat:"Passwords",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Forces periodic rotation, moderate UX impact.",reg:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Maximum password age = 60 days",gpo:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Maximum password age = 60 days"},
-  {id:"V-253302",name:"Min password age ≥ 1 day",cat:"Passwords",tier:"Tier 2",imp:"Low",fri:"Noticeable",status:"Tested / Passed",risk:"Low",ops:true,notes:"Blocks rapid cycling through password history.",reg:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Minimum password age = 1 day",gpo:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Minimum password age = 1 day"},
-  {id:"V-253303",name:"Min password length 14",cat:"Passwords",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Better brute-force resistance, training needed.",reg:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Minimum password length = 14",gpo:"Computer Config >> Security Settings >> Account Policies >> Password Policy >> Minimum password length = 14 characters"},
-  {id:"V-253297 / V-253299",name:"Account lockout policy",cat:"Account & Logon",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Lockout threshold/duration/reset tuned for security vs helpdesk.",reg:"Computer Config >> Security Settings >> Account Policies >> Account Lockout Policy >> Account lockout threshold = 3 | Computer Config >> Security Settings >> Account Policies >> Account Lockout Policy >> Account lockout duration = 15 min",gpo:"Computer Config >> Security Settings >> Account Policies >> Account Lockout Policy | Computer Config >> Security Settings >> Account Policies >> Account Lockout Policy >> Account lockout duration"},
-  {id:"V-253259 / V-253257",name:"BitLocker baseline (OS disk)",cat:"Device & Hardware",tier:"Tier 2",imp:"High",fri:"Noticeable",status:"Tested / Passed",risk:"High",ops:true,notes:"Protects data at rest on lost or stolen devices.",reg:"Require BitLocker on the OS drive with TPM-backed protection and recovery escrow. For enterprise durability, prefer policy-backed BitLocker enforcement over one-time local commands.",gpo:"Intune Endpoint Security >> Disk encryption policy | or Computer Config >> Administrative Templates >> Windows Components >> BitLocker Drive Encryption >> Operating System Drives"},
-  {id:"V-253370",name:"Credential Guard",cat:"Device & Hardware",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Blocks many credential theft methods, generally low side effects.",reg:"Enable virtualization-based security and Credential Guard using a policy-backed device security baseline. Treat this as proven only when the configuration is enforced and revalidated after reboot.",gpo:"Intune Settings Catalog >> Device Guard / Credential Guard | or Computer Config >> Administrative Templates >> System >> Device Guard >> Turn On Virtualization Based Security"},
-  {id:"V-253371 / V-253426",name:"VBS / DMA protection",cat:"Device & Hardware",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Hardens kernel and DMA paths.",reg:"Enable virtualization-based security with Secure Boot support and require Kernel DMA protection where supported. Keep the VBS portion flagged until the regression is resolved by rescan.",gpo:"Computer Config >> Administrative Templates >> System >> Device Guard >> Turn On Virtualization Based Security | Device security baseline for Kernel DMA Protection"},
-  {id:"V-253306 / V-253317",name:"Audit: logon/logoff",cat:"Audit & Logging",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Core audit events for investigations.",reg:"Enable Advanced Audit Policy subcategories for logon, logoff, special logon, and credential validation events. Keep this in policy, not script-only local auditpol commands.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Advanced Audit Policy Configuration >> Audit Policies >> Logon/Logoff and Account Logon"},
-  {id:"V-253319 / V-253324 / V-278926 / V-278931",name:"Audit: object access & file system",cat:"Audit & Logging",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Tracks file share, removable storage and file system events.",reg:"Enable object-access auditing for file share, removable storage, and file system events through Advanced Audit Policy. Pair this with clear storage and support guidance because the logs will grow faster.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Advanced Audit Policy Configuration >> Audit Policies >> Object Access"},
-  {id:"V-253325 / V-253329 / V-278932 / V-278933",name:"Audit: policy change & privilege use",cat:"Audit & Logging",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"Shows admin and policy change activity.",reg:"Enable auditing for audit policy change, authorization policy change, and sensitive privilege use. This should be implemented through the Advanced Audit Policy surface so SCC sees the exact required subcategories.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Advanced Audit Policy Configuration >> Audit Policies >> Policy Change and Privilege Use"},
-  {id:"V-253330 / V-253336",name:"Audit: system events",cat:"Audit & Logging",tier:"Tier 2",imp:"High",fri:"None",status:"Tested / Passed",risk:"High",ops:true,notes:"System integrity and state changes.",reg:"Enable Advanced Audit Policy for system integrity, security state changes, and other system events. This is foundational evidence for QA and incident review.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Advanced Audit Policy Configuration >> Audit Policies >> System"},
-  {id:"V-253337 / V-253339",name:"Increase event log sizes",cat:"Audit & Logging",tier:"Tier 2",imp:"Medium",fri:"None",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Prevents important audit logs from rolling too quickly.",reg:"Set Application and System logs to at least 32768 KB and set the Security log to at least 1024000 KB. The current script used 32768 for all three, which is why this remains a real gap.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Event Log >> Maximum application log size / Maximum security log size / Maximum system log size"},
-  {id:"V-253392 / V-253393",name:"Telemetry reduction",cat:"Apps & Features",tier:"Tier 2",imp:"Medium",fri:"None",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Reduces telemetry/diagnostic data to minimum needed.",reg:"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection\\LimitEnhancedDiagnosticDataWindowsAnalytics = 1 | HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection\\AllowTelemetry = 1",gpo:"Computer Config >> Admin Templates >> Windows Components >> Data Collection >> Limit Enhanced diagnostic data = Enabled | Computer Config >> Admin Templates >> Windows Components >> Data Collection >> Allow Diagnostic Data = Enabled, Diagnostic data off"},
-  {id:"V-253390 / V-253425 / V-253384",name:"Disable consumer experiences",cat:"Apps & Features",tier:"Tier 2",imp:"Low",fri:"None",status:"Tested / Passed",risk:"Low",ops:true,notes:"Cleans up consumer UX and third-party suggestions.",reg:"Disable consumer account suggestions, cloud consumer experiences, and non-business promotional content through policy-backed Windows experience settings.",gpo:"Computer Config >> Administrative Templates >> Windows Components >> Cloud Content and related Windows experience policies"},
-  {id:"V-253405 / V-253406",name:"Harden RDP & RPC",cat:"Remote Access",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Requires secure RPC/RDP, may affect legacy admin workflows.",reg:"Require secure RPC communication and high encryption for Remote Desktop Session Host. Validate legacy admin tools before broad rollout.",gpo:"Computer Config >> Administrative Templates >> Windows Components >> Remote Desktop Services >> Remote Desktop Session Host >> Security"},
-  {id:"V-253402 / V-253404",name:"Block saved RDP creds & drive mapping",cat:"Remote Access",tier:"Tier 2",imp:"Medium",fri:"Noticeable",status:"Tested / Passed",risk:"Medium",ops:true,notes:"Improves RDP security and data leak posture.",reg:"Prevent saved credentials in the Remote Desktop client and block local drive redirection to reduce credential reuse and data transfer risk.",gpo:"Computer Config >> Administrative Templates >> Windows Components >> Remote Desktop Services >> Remote Desktop Connection Client and Remote Desktop Session Host >> Device and Resource Redirection"},
-  {id:"V-253466",name:"FIPS algorithms",cat:"Auth & Crypto",tier:"Tier 3",imp:"High",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"May break VPNs/legacy TLS, leadership decision after pilot.",reg:"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\FIPSAlgorithmPolicy\\Enabled = 1",gpo:"Computer Config >> Security Settings >> Local Policies >> Security Options >> System cryptography: Use FIPS compliant algorithms = Enabled"},
-  {id:"V-253464 / V-253362",name:"Strict NTLM/SMB minimums",cat:"Auth & Crypto",tier:"Tier 3",imp:"High",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"Can impact legacy NAS / servers.",reg:"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\NetworkProvider\\HardenedPaths = RequireMutualAuthentication=1,RequireIntegrity=1",gpo:"Computer Config >> Admin Templates >> Network >> Network Provider >> Hardened UNC Paths"},
-  {id:"V-253471",name:"UAC auto-deny standard users",cat:"Account & Logon",tier:"Tier 3",imp:"High",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"Large behavior change for elevation, requires strong process.",reg:"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\ConsentPromptBehaviorUser = 0",gpo:"Computer Config >> Security Settings >> Local Policies >> Security Options >> UAC: Behavior of elevation prompt for standard users = Automatically deny"},
-  {id:"V-253444",name:"Aggressive inactivity lock (15 min)",cat:"Account & Logon",tier:"Tier 3",imp:"Medium",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"Users may be frequently locked, workflow dependent.",reg:"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\InactivityTimeoutSecs = 900",gpo:"Computer Config >> Security Settings >> Local Policies >> Security Options >> Interactive logon: Machine inactivity limit = 900"},
-  {id:"V-253260 / V-253261",name:"BitLocker PIN pre-boot",cat:"Device & Hardware",tier:"Tier 3",imp:"High",fri:"Disruptive",status:"Deferred",risk:"High",ops:false,notes:"Better pre-boot auth, but adds user steps at boot.",reg:"Require startup PIN with a minimum length of six digits for BitLocker-protected operating system drives. Keep deferred until user-impact and support readiness are accepted.",gpo:"Computer Config >> Administrative Templates >> Windows Components >> BitLocker Drive Encryption >> Operating System Drives >> Require additional authentication at startup and Configure minimum PIN length for startup"},
-  {id:"V-253491 / V-253495",name:"Strict deny logon rights",cat:"User Rights & Local Accounts",tier:"Tier 3",imp:"High",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"Can break services or admin workflows if mis-scoped.",reg:"Restrict deny-logon rights for highly privileged accounts on workstations only after service accounts, admin workflows, and emergency access paths are modeled.",gpo:"Computer Config >> Windows Settings >> Security Settings >> Local Policies >> User Rights Assignment"},
-  {id:"V-253291 / V-253293",name:"Bluetooth restrictions",cat:"Device & Hardware",tier:"Tier 3",imp:"Medium",fri:"Disruptive",status:"Deferred",risk:"Medium",ops:false,notes:"Can affect Bluetooth peripherals, evaluate by business role.",reg:"Disable Bluetooth or restrict discoverability and pairing behavior based on business role. Do not enforce broadly until the affected peripherals are known.",gpo:"Computer Config >> Administrative Templates >> Network >> Bluetooth or device-restriction policy via Intune Settings Catalog"}
+const RAW_D = window.STIG_CONTROLS_RAW || [];
+const PILOT_IDS = new Set((window.STIG_PILOT_WAVE && window.STIG_PILOT_WAVE.pilotIds) || []);
+const CONTROL_META = window.STIG_CONTROL_META || {};
+const CONTROL_CONFIG = window.STIG_CONTROL_CONFIG || {};
+const INFOSEC_CONFIG = window.STIG_INFOSEC_CONFIG || {};
+const INFOSEC_CONTENT = window.STIG_INFOSEC_CONTENT || {};
+const TEAM_BY_CATEGORY = CONTROL_CONFIG.teamByCategory || {};
+const CONTROL_OVERRIDES = CONTROL_CONFIG.controlOverrides || {};
+const SECURITY_VALUE_MAP = CONTROL_CONFIG.securityValueMap || { High: 5, Medium: 3, Low: 1 };
+const FRICTION_VALUE_MAP = CONTROL_CONFIG.frictionValueMap || { None: 1, Noticeable: 3, Disruptive: 5 };
+const RISK_VALUE_MAP = CONTROL_CONFIG.riskValueMap || { High: 5, Medium: 3, Low: 1 };
+const PRIORITY_BUCKETS = CONTROL_CONFIG.priorityBuckets || [
+  { min: 55, label: 'Highest Value' },
+  { min: 42, label: 'Safe Quick Win' },
+  { min: 30, label: 'Needs Review' },
+  { min: -9999, label: 'Too Risky Right Now' }
 ];
+const INFOSEC_SCORE_BY_SEVERITY = INFOSEC_CONFIG.scoreBySeverity || { High: 5, Medium: 3, Low: 1 };
+const INFOSEC_SCORE_BY_PRIORITY = INFOSEC_CONFIG.scoreByPriority || { High: 5, Medium: 3, Low: 1 };
+const INFOSEC_DEFAULT_PRIORITY_BY_SEVERITY = INFOSEC_CONFIG.defaultPriorityBySeverity || { High: 'High', Medium: 'Medium', Low: 'Low' };
+const INFOSEC_OVERRIDES = INFOSEC_CONFIG.ruleOverrides || {};
+const INFOSEC_FOCUS_OVERRIDES = INFOSEC_CONFIG.focusOverrides || {};
+const inferInfoSecOwner = INFOSEC_CONTENT.inferOwner || ((ruleId, title) => 'Endpoint Security Engineering');
+const inferInfoSecMethod = INFOSEC_CONTENT.inferMethod || (() => 'Policy-backed endpoint configuration, documented in a reusable implementation standard');
+const summarizeFinding = INFOSEC_CONTENT.summarizeFinding || ((ruleId, title) => `${title}.`);
+const inferInfoSecWhy = INFOSEC_CONTENT.inferWhy || (() => 'This is part of a cleaner Windows baseline and lowers attack surface without requiring a full hardening posture everywhere at once.');
+const inferInfoSecFocus = (ruleId, title) => (INFOSEC_CONTENT.inferFocus || (() => 'Assign the right owner, pick the durable implementation method, and only mark it complete after an SCC retest.'))(ruleId, title, INFOSEC_FOCUS_OVERRIDES);
 
-const PILOT_IDS = new Set([
-  "V-253358",
-  "V-253285",
-  "V-253367",
-  "V-253414",
-  "V-253354",
-  "V-253353",
-  "V-253370",
-  "V-253371 / V-253426",
-  "V-253306 / V-253317",
-  "V-253319 / V-253324 / V-278926 / V-278931",
-  "V-253325 / V-253329 / V-278932 / V-278933",
-  "V-253330 / V-253336",
-  "V-253259 / V-253257"
-]);
+function defaultLifecycleStage(row) {
+  if (row.validation === 'Failed') return 'Ready for Test';
+  if (row.validation === 'Partial') return row.pilot ? 'Smoke Tested' : 'Owner Assigned';
+  if (row.validation === 'Proven') return row.pilot ? 'QA Passed' : 'Implemented in Lab';
+  return row.tier === 'Tier 3' ? 'Deferred' : 'Candidate';
+}
 
-const CONTROL_META = {
-  "V-253358": { validation:"Proven", script:"Pre-pilot baseline / WDigest hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Improved in the first jump and is part of the Device B QA pilot." },
-  "V-253460": { validation:"Partial", script:"Not mapped in current batch set", pre36:"fail", post45:"pass", post51:"pass", evidence:"Pass state improved, but the current script set does not clearly own this change." },
-  "V-253285": { validation:"Partial", script:"No current batch; secure-by-absence interpretation", pre36:"fail", post45:"notapplicable", post51:"notapplicable", evidence:"Pilot sheet says passed, but SCC credits this as not applicable rather than pass." },
-  "V-253367": { validation:"Proven", script:"Existing registry hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Improved in the first jump and stayed compliant." },
-  "V-253414": { validation:"Proven", script:"Existing registry hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Improved in the first jump and stayed compliant." },
-  "V-253437": { validation:"Proven", script:"Preexisting local hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Foundation auditing control is scan-proven by the first jump." },
-  "V-253399": { validation:"Proven", script:"BATCH 5", pre36:"fail", post45:"pass", post51:"pass", evidence:"Game DVR hardening was credited in the first jump." },
-  "V-268317": { validation:"Proven", script:"Preexisting / registry-only hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Copilot moved to pass in the first jump." },
-  "V-253413": { validation:"Proven", script:"Preexisting / local hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"Auto sign-in hardening is credited by SCC in the first jump." },
-  "V-253354": { validation:"Proven", script:"Preexisting / local hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"First-jump network hygiene control and part of the pilot set." },
-  "V-253353": { validation:"Proven", script:"Preexisting / local hardening", pre36:"fail", post45:"pass", post51:"pass", evidence:"First-jump IPv6 source-routing hardening and part of the pilot set." },
-  "V-253300": { validation:"Proven", script:"BATCH 1 PASSWORD POLICIES", pre36:"fail", post45:"fail", post51:"pass", evidence:"Moved only after the second remediation wave." },
-  "V-253301": { validation:"Proven", script:"BATCH 1 PASSWORD POLICIES", pre36:"fail", post45:"fail", post51:"pass", evidence:"Moved only after the second remediation wave." },
-  "V-253302": { validation:"Proven", script:"BATCH 1 PASSWORD POLICIES", pre36:"fail", post45:"fail", post51:"pass", evidence:"Moved only after the second remediation wave." },
-  "V-253303": { validation:"Failed", script:"BATCH 1 PASSWORD POLICIES", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"The script sets a local registry value, but the captured SCC evidence does not prove this control moved." },
-  "V-253297 / V-253299": { validation:"Partial", script:"BATCH 1 PASSWORD POLICIES", pre36:"unknown", post45:"unknown", post51:"partial", evidence:"Lockout settings are local-only in the current script and can be overwritten by domain policy." },
-  "V-253259 / V-253257": { validation:"Proven", script:"BATCH 2 BITLOCKER & HARDWARE SECURITY", pre36:"error", post45:"pass", post51:"pass", evidence:"BitLocker OS-disk protection is proven by the first jump and remains core pilot scope." },
-  "V-253370": { validation:"Partial", script:"BATCH 2 BITLOCKER & HARDWARE SECURITY", pre36:"pass", post45:"pass", post51:"pass", evidence:"Already passing in the baseline, so the script is not proven as the reason for compliance." },
-  "V-253371 / V-253426": { validation:"Partial", script:"BATCH 2 BITLOCKER & HARDWARE SECURITY", pre36:"partial", post45:"partial", post51:"mixed", evidence:"DMA protection improved by the final scan, but VBS platform-security evidence regressed elsewhere in the benchmark." },
-  "V-253306 / V-253317": { validation:"Proven", script:"BATCH 3 AUDIT LOGGING", pre36:"fail", post45:"fail", post51:"pass", evidence:"Audit logon events are proven by the second jump and are part of the pilot set." },
-  "V-253319 / V-253324 / V-278926 / V-278931": { validation:"Proven", script:"BATCH 3 AUDIT LOGGING", pre36:"fail", post45:"fail", post51:"pass", evidence:"Object access and removable-storage auditing moved in the second jump." },
-  "V-253325 / V-253329 / V-278932 / V-278933": { validation:"Proven", script:"BATCH 3 AUDIT LOGGING", pre36:"fail", post45:"fail", post51:"pass", evidence:"Policy-change and privilege-use auditing moved in the second jump." },
-  "V-253330 / V-253336": { validation:"Proven", script:"BATCH 3 AUDIT LOGGING", pre36:"fail", post45:"fail", post51:"pass", evidence:"System event auditing moved in the second jump." },
-  "V-253337 / V-253339": { validation:"Failed", script:"BATCH 3 AUDIT LOGGING", pre36:"fail", post45:"fail", post51:"fail", evidence:"The script sets all logs to 32768 KB, but the Security log STIG requires 1024000 KB, so SCC still fails it." },
-  "V-253392 / V-253393": { validation:"Proven", script:"BATCH 4 TELEMETRY & CONSUMER FEATURES", pre36:"fail", post45:"pass", post51:"pass", evidence:"Telemetry settings are credited in the first jump." },
-  "V-253390 / V-253425 / V-253384": { validation:"Partial", script:"BATCH 4 + BATCH 5", pre36:"fail", post45:"pass", post51:"pass", evidence:"Consumer experiences clearly improved, but the combined control bucket mixes multiple settings with different proof levels." },
-  "V-253405 / V-253406": { validation:"Proven", script:"BATCH 5 CONSUMER UX & RDP HARDENING", pre36:"fail", post45:"pass", post51:"pass", evidence:"Secure RPC and high encryption are proven by SCC in the first jump." },
-  "V-253402 / V-253404": { validation:"Partial", script:"BATCH 5 CONSUMER UX & RDP HARDENING", pre36:"fail", post45:"pass", post51:"pass", evidence:"Saved-credential blocking is proven, but the dashboard bundle does not exactly match every SCC rule identifier." },
-  "V-253466": { validation:"Pending", script:"Not in pilot scope", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"Deferred Tier 3 control. Do not implement before leadership approval." },
-  "V-253464 / V-253362": { validation:"Pending", script:"Not in pilot scope", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"Cross-team auth and SMB minimums remain deferred." },
-  "V-253471": { validation:"Pending", script:"Not in pilot scope", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"Disruptive Tier 3 control, deferred beyond pilot." },
-  "V-253444": { validation:"Pending", script:"Not in pilot scope", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"Usability-heavy Tier 3 control, deferred beyond pilot." },
-  "V-253260 / V-253261": { validation:"Pending", script:"Not in pilot scope", pre36:"fail", post45:"fail", post51:"fail", evidence:"Pre-boot PIN remains intentionally out of the balanced pilot." },
-  "V-253491 / V-253495": { validation:"Pending", script:"Not in pilot scope", pre36:"unknown", post45:"unknown", post51:"unknown", evidence:"Strict deny-logon rights should stay deferred until service impact is modeled." },
-  "V-253291 / V-253293": { validation:"Pending", script:"Not in pilot scope", pre36:"fail", post45:"fail", post51:"fail", evidence:"Bluetooth restrictions remain unresolved and outside the balanced pilot." }
-};
+function defaultReleaseStatus(row, lifecycleStage) {
+  if (lifecycleStage === 'Deferred') return 'Hold';
+  if (lifecycleStage === 'QA Passed' && row.pilot) return 'RFC Ready';
+  if (row.validation === 'Failed') return 'Blocked';
+  return 'In Progress';
+}
+
+function defaultQaStatus(row) {
+  if (row.validation === 'Proven') return 'Passed';
+  if (row.validation === 'Failed') return 'Blocked';
+  return 'Needs Review';
+}
+
+function computePriorityScore(row) {
+  const securityValue = SECURITY_VALUE_MAP[row.imp] || 1;
+  const userFriction = FRICTION_VALUE_MAP[row.fri] || 1;
+  const operationalRisk = RISK_VALUE_MAP[row.risk] || 1;
+  const pilotBonus = row.pilot ? 8 : 0;
+  const opsBonus = row.ops ? 4 : 0;
+  return Math.max(20, securityValue * 12 - userFriction * 4 - operationalRisk * 2 + pilotBonus + opsBonus + (row.validation === 'Proven' ? 8 : row.validation === 'Partial' ? 2 : 0));
+}
+
+function priorityBucket(score) {
+  return (PRIORITY_BUCKETS.find(bucket => score >= bucket.min) || PRIORITY_BUCKETS[PRIORITY_BUCKETS.length - 1]).label;
+}
 
 const D = RAW_D.map(r => ({
   ...r,
@@ -1892,7 +1866,35 @@ const D = RAW_D.map(r => ({
   post51: "unknown",
   evidence: "Needs SCC validation mapping.",
   ...CONTROL_META[r.id]
-}));
+})).map(r => {
+  const lifecycle_stage = defaultLifecycleStage(r);
+  const owner_team = TEAM_BY_CATEGORY[r.cat] || 'Endpoint Security Engineering';
+  const security_value = SECURITY_VALUE_MAP[r.imp] || 1;
+  const user_impact = FRICTION_VALUE_MAP[r.fri] || 1;
+  const support_impact = r.fri === 'Disruptive' ? 5 : r.fri === 'Noticeable' ? 3 : 1;
+  const operational_risk = RISK_VALUE_MAP[r.risk] || 1;
+  const priority_score = computePriorityScore(r);
+  return {
+    ...r,
+    lifecycle_stage,
+    owner_team,
+    owner_person: r.pilot ? 'Wave owner needed' : 'TBD',
+    cross_team_dependency: r.tier === 'Tier 3' ? 'Leadership decision' : r.pilot ? 'QA and InfoSec sign-off' : 'Normal change review',
+    security_value,
+    user_impact,
+    support_impact,
+    operational_risk,
+    priority_score,
+    priority_bucket: priorityBucket(priority_score),
+    qa_status: defaultQaStatus(r),
+    release_status: defaultReleaseStatus(r, lifecycle_stage),
+    decision_log: [
+      r.pilot ? 'Included in the Device B pilot scope.' : 'Tracked in the broader selected control set.',
+      r.evidence
+    ],
+    ...CONTROL_OVERRIDES[r.id]
+  };
+});
 
 const BASELINE_FAILED = JSON.parse(String.raw`[{"VulnId":"WN11-00-000031","Severity":"high","Title":"Windows 11 systems must use a BitLocker PIN for pre-boot authentication."},{"VulnId":"WN11-00-000032","Severity":"medium","Title":"Windows 11 systems must use a BitLocker PIN with a minimum length of six digits for pre-boot authentication."},{"VulnId":"WN11-00-000090","Severity":"medium","Title":"Accounts must be configured to require password expiration."},{"VulnId":"WN11-00-000125","Severity":"medium","Title":"Copilot must be disabled for Windows 11."},{"VulnId":"WN11-00-000130","Severity":"medium","Title":"Software certificate installation files must be removed from Windows 11."},{"VulnId":"WN11-00-000150","Severity":"high","Title":"Structured Exception Handling Overwrite Protection (SEHOP) must be enabled."},{"VulnId":"WN11-00-000155","Severity":"medium","Title":"The Windows PowerShell 2.0 feature must be disabled on the system."},{"VulnId":"WN11-00-000175","Severity":"medium","Title":"The Secondary Logon service must be disabled on Windows 11."},{"VulnId":"WN11-00-000210","Severity":"medium","Title":"Bluetooth must be turned off unless approved by the organization."},{"VulnId":"WN11-00-000220","Severity":"medium","Title":"Bluetooth must be turned off when not in use."},{"VulnId":"WN11-00-000230","Severity":"medium","Title":"The system must notify the user when a Bluetooth device attempts to connect."},{"VulnId":"WN11-AC-000010","Severity":"medium","Title":"The number of allowed bad logon attempts must be configured to three or less."},{"VulnId":"WN11-AC-000020","Severity":"medium","Title":"The password history must be configured to 24 passwords remembered."},{"VulnId":"WN11-AC-000025","Severity":"medium","Title":"The maximum password age must be configured to 60 days or less."},{"VulnId":"WN11-AC-000030","Severity":"medium","Title":"The minimum password age must be configured to at least 1 day."},{"VulnId":"WN11-AC-000035","Severity":"medium","Title":"Passwords must, at a minimum, be 14 characters."},{"VulnId":"WN11-AU-000005","Severity":"medium","Title":"The system must be configured to audit Account Logon - Credential Validation failures."},{"VulnId":"WN11-AU-000010","Severity":"medium","Title":"The system must be configured to audit Account Logon - Credential Validation successes."},{"VulnId":"WN11-AU-000030","Severity":"medium","Title":"The system must be configured to audit Account Management - Security Group Management successes."},{"VulnId":"WN11-AU-000035","Severity":"medium","Title":"The system must be configured to audit Account Management - User Account Management failures."},{"VulnId":"WN11-AU-000040","Severity":"medium","Title":"The system must be configured to audit Account Management - User Account Management successes."},{"VulnId":"WN11-AU-000045","Severity":"medium","Title":"The system must be configured to audit Detailed Tracking - PNP Activity successes."},{"VulnId":"WN11-AU-000050","Severity":"medium","Title":"The system must be configured to audit Detailed Tracking - Process Creation successes."},{"VulnId":"WN11-AU-000054","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Account Lockout failures."},{"VulnId":"WN11-AU-000060","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Group Membership successes."},{"VulnId":"WN11-AU-000065","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Logoff successes."},{"VulnId":"WN11-AU-000070","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Logon failures."},{"VulnId":"WN11-AU-000075","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Logon successes."},{"VulnId":"WN11-AU-000080","Severity":"medium","Title":"The system must be configured to audit Logon/Logoff - Special Logon successes."},{"VulnId":"WN11-AU-000081","Severity":"medium","Title":"Windows 11 must be configured to audit Object Access - File Share failures."},{"VulnId":"WN11-AU-000082","Severity":"medium","Title":"Windows 11 must be configured to audit Object Access - File Share successes."},{"VulnId":"WN11-AU-000083","Severity":"medium","Title":"Windows 11 must be configured to audit Object Access - Other Object Access Events successes."},{"VulnId":"WN11-AU-000084","Severity":"medium","Title":"Windows 11 must be configured to audit Object Access - Other Object Access Events failures."},{"VulnId":"WN11-AU-000085","Severity":"medium","Title":"The system must be configured to audit Object Access - Removable Storage failures."},{"VulnId":"WN11-AU-000090","Severity":"medium","Title":"The system must be configured to audit Object Access - Removable Storage successes."},{"VulnId":"WN11-AU-000100","Severity":"medium","Title":"The system must be configured to audit Policy Change - Audit Policy Change successes."},{"VulnId":"WN11-AU-000105","Severity":"medium","Title":"The system must be configured to audit Policy Change - Authentication Policy Change successes."},{"VulnId":"WN11-AU-000107","Severity":"medium","Title":"The system must be configured to audit Policy Change - Authorization Policy Change successes."},{"VulnId":"WN11-AU-000110","Severity":"medium","Title":"The system must be configured to audit Privilege Use - Sensitive Privilege Use failures."},{"VulnId":"WN11-AU-000115","Severity":"medium","Title":"The system must be configured to audit Privilege Use - Sensitive Privilege Use successes."},{"VulnId":"WN11-AU-000120","Severity":"medium","Title":"The system must be configured to audit System - IPsec Driver failures."},{"VulnId":"WN11-AU-000130","Severity":"medium","Title":"The system must be configured to audit System - Other System Events successes."},{"VulnId":"WN11-AU-000135","Severity":"medium","Title":"The system must be configured to audit System - Other System Events failures."},{"VulnId":"WN11-AU-000140","Severity":"medium","Title":"The system must be configured to audit System - Security State Change successes."},{"VulnId":"WN11-AU-000150","Severity":"medium","Title":"The system must be configured to audit System - Security System Extension successes."},{"VulnId":"WN11-AU-000155","Severity":"medium","Title":"The system must be configured to audit System - System Integrity failures."},{"VulnId":"WN11-AU-000160","Severity":"medium","Title":"The system must be configured to audit System - System Integrity successes."},{"VulnId":"WN11-AU-000500","Severity":"medium","Title":"The Application event log size must be configured to 32768 KB or greater."},{"VulnId":"WN11-AU-000505","Severity":"medium","Title":"The Security event log size must be configured to 1024000 KB or greater."},{"VulnId":"WN11-AU-000510","Severity":"medium","Title":"The System event log size must be configured to 32768 KB or greater."},{"VulnId":"WN11-AU-000550","Severity":"medium","Title":"Windows 11 must be configured to audit Other Policy Change Events Successes."},{"VulnId":"WN11-AU-000555","Severity":"medium","Title":"Windows 11 must be configured to audit Other Policy Change Events Failures."},{"VulnId":"WN11-AU-000560","Severity":"medium","Title":"Windows 11 must be configured to audit other Logon/Logoff Events Successes."},{"VulnId":"WN11-AU-000565","Severity":"medium","Title":"Windows 11 must be configured to audit other Logon/Logoff Events Failures."},{"VulnId":"WN11-AU-000570","Severity":"medium","Title":"Windows 11 must be configured to audit Detailed File Share Failures."},{"VulnId":"WN11-AU-000575","Severity":"medium","Title":"Windows 11 must be configured to audit MPSSVC Rule-Level Policy Change Successes."},{"VulnId":"WN11-AU-000580","Severity":"medium","Title":"Windows 11 must be configured to audit MPSSVC Rule-Level Policy Change Failures."},{"VulnId":"WN11-AU-000581","Severity":"medium","Title":"Windows 11 must be configured to audit file system failures."},{"VulnId":"WN11-AU-000582","Severity":"medium","Title":"Windows 11 must be configured to audit file system successes."},{"VulnId":"WN11-AU-000583","Severity":"medium","Title":"Windows 11 must be configured to audit handle manipulation failures."},{"VulnId":"WN11-AU-000584","Severity":"medium","Title":"Windows 11 must be configured to audit handle manipulation successes."},{"VulnId":"WN11-AU-000585","Severity":"medium","Title":"Windows 11 must have command line process auditing events enabled for failures."},{"VulnId":"WN11-AU-000586","Severity":"medium","Title":"Windows 11 must be configured to audit registry successes."},{"VulnId":"WN11-AU-000587","Severity":"medium","Title":"Windows 11 must be configured to audit sensitive privilege use successes."},{"VulnId":"WN11-AU-000588","Severity":"medium","Title":"Windows 11 must be configured to audit sensitive privilege use failures."},{"VulnId":"WN11-AU-000589","Severity":"medium","Title":"Windows 11 must be configured to audit registry failures."},{"VulnId":"WN11-CC-000005","Severity":"medium","Title":"Camera access from the lock screen must be disabled."},{"VulnId":"WN11-CC-000020","Severity":"medium","Title":"IPv6 source routing must be configured to highest protection."},{"VulnId":"WN11-CC-000025","Severity":"medium","Title":"The system must be configured to prevent IP source routing."},{"VulnId":"WN11-CC-000030","Severity":"low","Title":"The system must be configured to prevent Internet Control Message Protocol (ICMP) redirects from overriding Open Shortest Path First (OSPF) generated routes."},{"VulnId":"WN11-CC-000035","Severity":"low","Title":"The system must be configured to ignore NetBIOS name release requests except from WINS servers."},{"VulnId":"WN11-CC-000037","Severity":"medium","Title":"Local administrator accounts must have their privileged token filtered to prevent elevated privileges from being used over the network on domain systems."},{"VulnId":"WN11-CC-000038","Severity":"medium","Title":"WDigest Authentication must be disabled."},{"VulnId":"WN11-CC-000039","Severity":"medium","Title":"Run as different user must be removed from context menus."},{"VulnId":"WN11-CC-000040","Severity":"medium","Title":"Insecure logons to an SMB server must be disabled."},{"VulnId":"WN11-CC-000050","Severity":"medium","Title":"Hardened UNC Paths must be defined to require mutual authentication and integrity for at least the \\\\*\\SYSVOL and \\\\*\\NETLOGON shares."},{"VulnId":"WN11-CC-000052","Severity":"medium","Title":"Windows 11 must be configured to prioritize ECC Curves with longer key lengths first."},{"VulnId":"WN11-CC-000060","Severity":"medium","Title":"Connections to non-domain networks when connected to a domain authenticated network must be blocked."},{"VulnId":"WN11-CC-000066","Severity":"medium","Title":"Command line data must be included in process creation events."},{"VulnId":"WN11-CC-000068","Severity":"medium","Title":"Windows 11 must be configured to enable Remote host allows delegation of non-exportable credentials."},{"VulnId":"WN11-CC-000085","Severity":"medium","Title":"Early Launch Antimalware, Boot-Start Driver Initialization Policy must prevent boot drivers."},{"VulnId":"WN11-CC-000090","Severity":"medium","Title":"Group Policy objects must be reprocessed even if they have not changed."},{"VulnId":"WN11-CC-000100","Severity":"medium","Title":"Downloading print driver packages over HTTP must be prevented."},{"VulnId":"WN11-CC-000105","Severity":"medium","Title":"Web publishing and online ordering wizards must be prevented from downloading a list of providers."},{"VulnId":"WN11-CC-000110","Severity":"medium","Title":"Printing over HTTP must be prevented."},{"VulnId":"WN11-CC-000120","Severity":"medium","Title":"The network selection user interface (UI) must not be displayed on the logon screen."},{"VulnId":"WN11-CC-000130","Severity":"medium","Title":"Local users on domain-joined computers must not be enumerated."},{"VulnId":"WN11-CC-000155","Severity":"high","Title":"Solicited Remote Assistance must not be allowed."},{"VulnId":"WN11-CC-000165","Severity":"medium","Title":"Unauthenticated RPC clients must be restricted from connecting to the RPC server."},{"VulnId":"WN11-CC-000170","Severity":"low","Title":"The setting to allow Microsoft accounts to be optional for modern style apps must be enabled."},{"VulnId":"WN11-CC-000175","Severity":"low","Title":"The Application Compatibility Program Inventory must be prevented from collecting data and sending the information to Microsoft."},{"VulnId":"WN11-CC-000180","Severity":"high","Title":"Autoplay must be turned off for non-volume devices."},{"VulnId":"WN11-CC-000185","Severity":"high","Title":"The default autorun behavior must be configured to prevent autorun commands."},{"VulnId":"WN11-CC-000190","Severity":"high","Title":"Autoplay must be disabled for all drives."},{"VulnId":"WN11-CC-000195","Severity":"medium","Title":"Enhanced anti-spoofing for facial recognition must be enabled on Windows 11."},{"VulnId":"WN11-CC-000197","Severity":"low","Title":"Microsoft consumer experiences must be turned off."},{"VulnId":"WN11-CC-000200","Severity":"medium","Title":"Administrator accounts must not be enumerated during elevation."},{"VulnId":"WN11-CC-000204","Severity":"medium","Title":"Enhanced diagnostic data must be limited to the minimum required to support Windows Analytics."},{"VulnId":"WN11-CC-000205","Severity":"medium","Title":"Windows Telemetry must not be configured to Full."},{"VulnId":"WN11-CC-000210","Severity":"medium","Title":"The Microsoft Defender SmartScreen for Explorer must be enabled."},{"VulnId":"WN11-CC-000252","Severity":"medium","Title":"Windows 11 must be configured to disable Windows Game Recording and Broadcasting."},{"VulnId":"WN11-CC-000260","Severity":"medium","Title":"Windows 11 must be configured to require a minimum pin length of six characters or greater."},{"VulnId":"WN11-CC-000270","Severity":"medium","Title":"Passwords must not be saved in the Remote Desktop Client."},{"VulnId":"WN11-CC-000275","Severity":"medium","Title":"Local drives must be prevented from sharing with Remote Desktop Session Hosts."},{"VulnId":"WN11-CC-000280","Severity":"medium","Title":"Remote Desktop Services must always prompt a client for passwords upon connection."},{"VulnId":"WN11-CC-000285","Severity":"medium","Title":"The Remote Desktop Session Host must require secure RPC communications."},{"VulnId":"WN11-CC-000290","Severity":"medium","Title":"Remote Desktop Services must be configured with the client connection encryption set to the required level."},{"VulnId":"WN11-CC-000295","Severity":"medium","Title":"Attachments must be prevented from being downloaded from RSS feeds."},{"VulnId":"WN11-CC-000305","Severity":"medium","Title":"Indexing of encrypted files must be turned off."},{"VulnId":"WN11-CC-000310","Severity":"medium","Title":"Users must be prevented from changing installation options."},{"VulnId":"WN11-CC-000315","Severity":"high","Title":"The Windows Installer feature \"Always install with elevated privileges\" must be disabled."},{"VulnId":"WN11-CC-000325","Severity":"medium","Title":"Automatically signing in the last interactive user after a system-initiated restart must be disabled."},{"VulnId":"WN11-CC-000326","Severity":"medium","Title":"PowerShell script block logging must be enabled on Windows 11."},{"VulnId":"WN11-CC-000327","Severity":"medium","Title":"PowerShell Transcription must be enabled on Windows 11."},{"VulnId":"WN11-CC-000330","Severity":"high","Title":"The Windows Remote Management (WinRM) client must not use Basic authentication."},{"VulnId":"WN11-CC-000335","Severity":"medium","Title":"The Windows Remote Management (WinRM) client must not allow unencrypted traffic."},{"VulnId":"WN11-CC-000345","Severity":"high","Title":"The Windows Remote Management (WinRM) service must not use Basic authentication."},{"VulnId":"WN11-CC-000350","Severity":"medium","Title":"The Windows Remote Management (WinRM) service must not allow unencrypted traffic."},{"VulnId":"WN11-CC-000355","Severity":"medium","Title":"The Windows Remote Management (WinRM) service must not store RunAs credentials."},{"VulnId":"WN11-CC-000360","Severity":"medium","Title":"The Windows Remote Management (WinRM) client must not use Digest authentication."},{"VulnId":"WN11-CC-000365","Severity":"medium","Title":"Windows 11 must be configured to prevent Windows apps from being activated by voice while the system is locked."},{"VulnId":"WN11-CC-000385","Severity":"medium","Title":"Windows Ink Workspace must be configured to disallow access above the lock."},{"VulnId":"WN11-CC-000390","Severity":"low","Title":"Windows 11 must be configured to prevent users from receiving suggestions for third-party or additional applications."},{"VulnId":"WN11-EP-000310","Severity":"medium","Title":"Windows 11 Kernel (Direct Memory Access) DMA Protection must be enabled."},{"VulnId":"WN11-PK-000005","Severity":"medium","Title":"The DoD Root CA certificates must be installed in the Trusted Root Store."},{"VulnId":"WN11-PK-000010","Severity":"medium","Title":"The External Root CA certificates must be installed in the Trusted Root Store on unclassified systems."},{"VulnId":"WN11-PK-000015","Severity":"medium","Title":"The DoD Interoperability Root CA cross-certificates must be installed in the Untrusted Certificates Store on unclassified systems."},{"VulnId":"WN11-PK-000020","Severity":"medium","Title":"The US DOD CCEB Interoperability Root CA cross-certificates must be installed in the Untrusted Certificates Store on unclassified systems."},{"VulnId":"WN11-SO-000005","Severity":"medium","Title":"The built-in administrator account must be disabled."},{"VulnId":"WN11-SO-000020","Severity":"medium","Title":"The built-in administrator account must be renamed."},{"VulnId":"WN11-SO-000025","Severity":"medium","Title":"The built-in guest account must be renamed."},{"VulnId":"WN11-SO-000030","Severity":"medium","Title":"Audit policy using subcategories must be enabled."},{"VulnId":"WN11-SO-000070","Severity":"medium","Title":"The machine inactivity limit must be set to 15 minutes, locking the system with the screensaver."},{"VulnId":"WN11-SO-000075","Severity":"medium","Title":"The required legal notice must be configured to display before console logon."},{"VulnId":"WN11-SO-000080","Severity":"low","Title":"The Windows message title for the legal notice must be configured."},{"VulnId":"WN11-SO-000095","Severity":"medium","Title":"The Smart Card removal option must be configured to Force Logoff or Lock Workstation."},{"VulnId":"WN11-SO-000150","Severity":"high","Title":"Anonymous enumeration of shares must be restricted."},{"VulnId":"WN11-SO-000167","Severity":"medium","Title":"Remote calls to the Security Account Manager (SAM) must be restricted to Administrators."},{"VulnId":"WN11-SO-000180","Severity":"medium","Title":"NTLM must be prevented from falling back to a Null session."},{"VulnId":"WN11-SO-000185","Severity":"medium","Title":"PKU2U authentication using online identities must be prevented."},{"VulnId":"WN11-SO-000190","Severity":"medium","Title":"Kerberos encryption types must be configured to prevent the use of DES and RC4 encryption suites."},{"VulnId":"WN11-SO-000205","Severity":"high","Title":"The LanMan authentication level must be set to send NTLMv2 response only, and to refuse LM and NTLM."},{"VulnId":"WN11-SO-000215","Severity":"medium","Title":"The system must be configured to meet the minimum session security requirement for NTLM SSP based clients."},{"VulnId":"WN11-SO-000220","Severity":"medium","Title":"The system must be configured to meet the minimum session security requirement for NTLM SSP based servers."},{"VulnId":"WN11-SO-000230","Severity":"medium","Title":"The system must be configured to use FIPS-compliant algorithms for encryption, hashing, and signing."},{"VulnId":"WN11-SO-000250","Severity":"medium","Title":"User Account Control must prompt administrators for consent on the secure desktop."},{"VulnId":"WN11-SO-000251","Severity":"medium","Title":"Windows 11 must use multifactor authentication for local and network access to privileged and nonprivileged accounts."},{"VulnId":"WN11-SO-000255","Severity":"medium","Title":"User Account Control must automatically deny elevation requests for standard users."},{"VulnId":"WN11-SO-000280","Severity":"medium","Title":"Passwords for enabled local Administrator accounts must be changed at least every 60 days."},{"VulnId":"WN11-UC-000015","Severity":"low","Title":"Toast notifications to the lock screen must be turned off."},{"VulnId":"WN11-UR-000010","Severity":"medium","Title":"The \"Access this computer from the network\" user right must only be assigned to the Administrators and Remote Desktop Users groups."},{"VulnId":"WN11-UR-000025","Severity":"medium","Title":"The \"Allow log on locally\" user right must only be assigned to the Administrators and Users groups."},{"VulnId":"WN11-UR-000030","Severity":"medium","Title":"The \"Back up files and directories\" user right must only be assigned to the Administrators group."},{"VulnId":"WN11-UR-000070","Severity":"medium","Title":"The \"Deny access to this computer from the network\" user right on workstations must be configured to prevent access from highly privileged domain accounts and local accounts on domain systems and unauthenticated access on all systems."},{"VulnId":"WN11-UR-000075","Severity":"medium","Title":"The \"Deny log on as a batch job\" user right on domain-joined workstations must be configured to prevent access from highly privileged domain accounts."},{"VulnId":"WN11-UR-000080","Severity":"medium","Title":"The \"Deny log on as a service\" user right on Windows 11 domain-joined workstations must be configured to prevent access from highly privileged domain accounts."},{"VulnId":"WN11-UR-000085","Severity":"medium","Title":"The \"Deny log on locally\" user right on workstations must be configured to prevent access from highly privileged domain accounts on domain systems and unauthenticated access on all systems."},{"VulnId":"WN11-UR-000090","Severity":"medium","Title":"The \"Deny log on through Remote Desktop Services\" user right on Windows 11 workstations must be configured to prevent access from highly privileged domain accounts and local accounts on domain systems and unauthenticated access on all systems."},{"VulnId":"WN11-UR-000160","Severity":"medium","Title":"The \"Restore files and directories\" user right must only be assigned to the Administrators group."}]`);
 
@@ -1922,6 +1924,20 @@ const TEAM_OPTIONS = [
   'Security Operations & Detection',
   'Infrastructure & Trust Services',
   'Browser & Application Engineering'
+];
+const LIFECYCLE_OPTIONS = [
+  'Candidate',
+  'Prioritized',
+  'Owner Assigned',
+  'Ready for Test',
+  'Implemented in Lab',
+  'Smoke Tested',
+  'QA Requested',
+  'QA Passed',
+  'RFC Ready',
+  'Released',
+  'Rolled Back',
+  'Deferred'
 ];
 let infoSecOwner = '';
 let infoSecSeverity = '';
@@ -1977,77 +1993,19 @@ function saveInfoSecState() {
   localStorage.setItem(INFOSEC_STORAGE_KEY, JSON.stringify(infoSecState));
 }
 
-function inferInfoSecOwner(ruleId, title) {
-  if (ruleId.includes('-AU-')) return 'Security Operations & Detection';
-  if (ruleId.includes('-PK-')) return 'Infrastructure & Trust Services';
-  if (ruleId.includes('-UR-')) return 'Identity & Access Engineering';
-  if (ruleId.includes('-AC-')) return 'Identity & Access Engineering';
-  if (title.includes('NTLM') || title.includes('Kerberos') || title.includes('LanMan') || title.includes('SMB') || title.includes('SAM')) return 'Identity & Access Engineering';
-  if (title.includes('certificate') || title.includes('Root CA')) return 'Infrastructure & Trust Services';
-  if (title.includes('Chrome') || title.includes('Edge') || title.includes('Firefox') || title.includes('Office') || title.includes('Explorer')) return 'Browser & Application Engineering';
-  return 'Endpoint Security Engineering';
+function inferInfoSecStage(severity, priority) {
+  if (priority === 'High') return 'Owner Assigned';
+  if (severity === 'High') return 'Prioritized';
+  return 'Candidate';
 }
 
-function inferInfoSecMethod(ruleId, title) {
-  if (ruleId.includes('-PK-')) return 'Central certificate distribution through trust-store management, GPO, or device configuration profiles';
-  if (ruleId.includes('-AU-')) return 'Advanced Audit Policy through GPO or Intune Settings Catalog with a retest in SCC';
-  if (ruleId.includes('-UR-') || ruleId.includes('-AC-') || title.includes('User right') || title.includes('Account')) return 'Domain-backed security policy with IAM sign-off, not a one-off local-only change';
-  if (title.includes('BitLocker')) return 'Intune Endpoint Security or GPO BitLocker policy';
-  if (title.includes('WinRM') || title.includes('Remote Desktop') || title.includes('RPC')) return 'Administrative Templates or security baselines, validated against admin workflow impact';
-  if (title.includes('PowerShell') || title.includes('Copilot') || title.includes('consumer') || title.includes('Telemetry') || title.includes('Game Recording')) return 'Administrative Templates via Intune or GPO, with plain-English release notes for users';
-  return 'Policy-backed endpoint configuration, documented in a reusable implementation standard';
-}
-
-function summarizeFinding(ruleId, title) {
-  if (ruleId.includes('-AU-')) return 'The device is missing one or more required audit events, so security evidence is incomplete.';
-  if (ruleId.includes('-AC-')) return 'The local or domain account policy is weaker than the STIG baseline expects.';
-  if (ruleId.includes('-UR-')) return 'A privileged user-right assignment is broader than it should be.';
-  if (title.includes('BitLocker PIN')) return 'The startup protection requirement for BitLocker is not fully enforced yet.';
-  if (title.includes('Copilot')) return 'Windows Copilot is still available or not fully blocked for the tested state.';
-  if (title.includes('Remote Desktop') || title.includes('WinRM') || title.includes('RPC')) return 'A remote administration control is still more permissive than the STIG requires.';
-  if (title.includes('certificate') || title.includes('Root CA')) return 'Required trust-store certificates are missing or not placed in the expected store.';
-  return title.replace(/\s*must\s+/i, ' currently does not ').replace(/\.$/, '') + '.';
-}
-
-function inferInfoSecWhy(ruleId, title) {
-  if (ruleId.includes('-AU-')) return 'This improves the quality of security evidence, which makes investigations, compliance reviews, and leadership reporting much easier to trust.';
-  if (ruleId.includes('-AC-')) return 'This reduces weak password behavior and makes brute-force or password-reuse attacks materially harder.';
-  if (ruleId.includes('-UR-')) return 'This narrows where privileged accounts can be used and reduces the chance of avoidable lateral movement.';
-  if (title.includes('BitLocker')) return 'Protects the device before Windows starts and limits data loss if a laptop is lost or stolen.';
-  if (title.includes('Remote Desktop') || title.includes('WinRM') || title.includes('RPC')) return 'This closes common remote administration abuse paths, but it should be communicated clearly because it can affect operational habits.';
-  if (title.includes('certificate') || title.includes('Root CA')) return 'This keeps machine trust aligned with enterprise and DoD certificate expectations so devices do not make the wrong trust decision.';
-  if (title.includes('Telemetry') || title.includes('consumer') || title.includes('Copilot')) return 'This removes unnecessary consumer or cloud-facing behavior from a business workstation and reduces data exposure.';
-  return 'This is part of a cleaner Windows baseline and lowers attack surface without requiring a full hardening posture everywhere at once.';
-}
-
-function inferInfoSecFocus(ruleId, title) {
-  if (ruleId === 'WN11-AU-000505') return 'Correct the script first. The current batch sets 32768 KB, but the Security log requirement is 1024000 KB or greater.';
-  if (title.includes('BitLocker PIN')) return 'Keep out of balanced pilot unless boot-time UX impact is accepted.';
-  if (title.includes('PowerShell 2.0')) return 'Treat carefully: SCC may report this as fail even when the feature is absent.';
-  if (title.includes('Copilot')) return 'Baseline shows fail; the final device moved. Verify whether policy landed for all users.';
-  if (title.includes('Bluetooth')) return 'High false-positive risk for business peripherals. Require device-role decision before blanket enforcement.';
-  if (title.includes('WinRM') || title.includes('Remote Desktop')) return 'Good security value, but validate admin workflows before broad rollout.';
-  if (ruleId.includes('-PK-')) return 'This needs central trust-store ownership. Do not solve it with one-off scripting on a single machine.';
-  return 'Assign the right owner, pick the durable implementation method, and only mark it complete after an SCC retest.';
+function inferInfoSecScore(severity, priority) {
+  const sev = INFOSEC_SCORE_BY_SEVERITY[severity] || 1;
+  const pri = INFOSEC_SCORE_BY_PRIORITY[priority] || 1;
+  return sev * 10 + pri * 5;
 }
 
 const INFOSEC_SOURCE = Array.isArray(window.BASELINE_FAILED) && window.BASELINE_FAILED.length ? window.BASELINE_FAILED : BASELINE_FAILED;
-
-const INFOSEC_OVERRIDES = {
-  'WN11-AU-000505': { priority: 'High', owner: 'Security Operations & Detection' },
-  'WN11-00-000031': { priority: 'High', owner: 'Endpoint Security Engineering' },
-  'WN11-00-000032': { priority: 'Medium', owner: 'Endpoint Security Engineering' },
-  'WN11-00-000155': { priority: 'High', owner: 'Endpoint Security Engineering' },
-  'WN11-00-000125': { priority: 'Medium', owner: 'Endpoint Security Engineering' },
-  'WN11-AC-000020': { priority: 'Medium', owner: 'Identity & Access Engineering' },
-  'WN11-AC-000025': { priority: 'Medium', owner: 'Identity & Access Engineering' },
-  'WN11-AC-000030': { priority: 'Low', owner: 'Identity & Access Engineering' },
-  'WN11-AC-000035': { priority: 'Medium', owner: 'Identity & Access Engineering' },
-  'WN11-CC-000330': { priority: 'High', owner: 'Endpoint Security Engineering' },
-  'WN11-CC-000345': { priority: 'High', owner: 'Endpoint Security Engineering' },
-  'WN11-SO-000205': { priority: 'High', owner: 'Identity & Access Engineering' },
-  'WN11-SO-000230': { priority: 'Medium', owner: 'Identity & Access Engineering' }
-};
 
 const INFOSEC_ITEMS = INFOSEC_SOURCE.map(item => {
   const primaryId = item.VId || item.VulnId || item.RuleId;
@@ -2056,7 +2014,9 @@ const INFOSEC_ITEMS = INFOSEC_SOURCE.map(item => {
   const override = INFOSEC_OVERRIDES[ruleId] || {};
   const severity = item.Severity.charAt(0).toUpperCase() + item.Severity.slice(1);
   const owner = state.owner || override.owner || inferInfoSecOwner(ruleId, item.Title);
-  const priority = state.priority || override.priority || (severity === 'High' ? 'High' : 'Medium');
+  const priority = state.priority || override.priority || INFOSEC_DEFAULT_PRIORITY_BY_SEVERITY[severity] || 'Medium';
+  const lifecycle_stage = state.lifecycle_stage || inferInfoSecStage(severity, priority);
+  const priority_score = inferInfoSecScore(severity, priority);
   return {
     id: primaryId,
     ruleId,
@@ -2064,6 +2024,9 @@ const INFOSEC_ITEMS = INFOSEC_SOURCE.map(item => {
     title: item.Title,
     owner,
     priority,
+    lifecycle_stage,
+    priority_score,
+    owner_person: state.owner_person || 'TBD',
     note: state.note || '',
     finding: summarizeFinding(ruleId, item.Title),
     why: inferInfoSecWhy(ruleId, item.Title),
@@ -2097,6 +2060,18 @@ function getPaginatedInfoSecRows() {
     pageRows: filtered.slice(start, start + infoSecPageSize),
     totalPages
   };
+}
+
+function applyInfoSecStateToItems() {
+  INFOSEC_ITEMS.forEach(item => {
+    const state = infoSecState[item.id] || {};
+    if (state.owner) item.owner = state.owner;
+    if (state.priority) item.priority = state.priority;
+    if (state.lifecycle_stage) item.lifecycle_stage = state.lifecycle_stage;
+    if (state.owner_person) item.owner_person = state.owner_person;
+    if (typeof state.note === 'string') item.note = state.note;
+    item.priority_score = inferInfoSecScore(item.severity, item.priority);
+  });
 }
 
 const READINESS_META = {
@@ -2304,11 +2279,12 @@ function renderPilot(rows) {
             <div class="pilot-card-id">${r.id}</div>
             <div class="pilot-card-title">${r.name}</div>
             <div class="pilot-card-meta">
+              <span class="badge pending">${r.lifecycle_stage}</span>
               ${validationBadge(r.validation)}
               ${impBadge(r.imp)}
               ${friBadge(r.fri)}
             </div>
-            <div class="pilot-card-note">${r.evidence}</div>
+            <div class="pilot-card-note"><strong>${r.owner_team}</strong> · ${r.priority_bucket} · ${r.evidence}</div>
           </article>
         `).join('') : `<div class="pilot-sub" style="margin:0">${emptyCopy}</div>`}
       </div>
@@ -2421,6 +2397,8 @@ function renderInfoSec() {
         <div class="infosec-actions">
           <button class="action-btn primary" onclick="syncSharedState()">Save Shared Notes</button>
           <button class="action-btn" onclick="exportInfoSecState()">Export JSON</button>
+          <button class="action-btn" onclick="exportInfoSecCsv()">Export CSV</button>
+          <button class="action-btn" onclick="exportInfoSecMarkdown()">Export Markdown</button>
           <button class="action-btn" onclick="document.getElementById('infosecImport').click()">Import JSON</button>
           <input id="infosecImport" type="file" accept="application/json" style="display:none" onchange="importInfoSecState(event)">
           <span class="sync-chip">${syncStatus}</span>
@@ -2481,10 +2459,24 @@ function renderInfoSec() {
                   </select>
                 </div>
                 <div class="infosec-field">
+                  <label>Owner Person</label>
+                  <input type="text" value="${escAttr(item.owner_person || '')}" onchange="updateInfoSecItem('${item.id}','owner_person',this.value)" placeholder="Assign person">
+                </div>
+                <div class="infosec-field">
                   <label>Priority</label>
                   <select onchange="updateInfoSecItem('${item.id}','priority',this.value)">
                     ${['High','Medium','Low'].map(priority => `<option value="${priority}" ${item.priority === priority ? 'selected' : ''}>${priority}</option>`).join('')}
                   </select>
+                </div>
+                <div class="infosec-field">
+                  <label>Lifecycle Stage</label>
+                  <select onchange="updateInfoSecItem('${item.id}','lifecycle_stage',this.value)">
+                    ${LIFECYCLE_OPTIONS.map(stage => `<option value="${stage}" ${item.lifecycle_stage === stage ? 'selected' : ''}>${stage}</option>`).join('')}
+                  </select>
+                </div>
+                <div class="infosec-field">
+                  <label>Priority Score</label>
+                  <div class="value">${item.priority_score}</div>
                 </div>
               </div>
               <div class="infosec-note">
@@ -2560,8 +2552,9 @@ function renderReadiness() {
             <div class="copy">${item.next}</div>
             <div class="meta">
               <span class="badge ${item.lane === 'Ready' ? 'proven' : item.lane === 'QA' ? 'partial' : 'failed'}">${item.stage}</span>
-              <span class="badge">${item.owner || 'Owner needed'}</span>
+              <span class="badge">${item.owner_team || item.owner || 'Owner needed'}</span>
               <span class="badge ${item.qa === 'Passed' ? 'proven' : item.qa === 'Blocked' ? 'failed' : 'partial'}">QA ${item.qa}</span>
+              <span class="badge pending">${item.priority_bucket}</span>
             </div>
           </article>
         `).join('')}
@@ -2806,8 +2799,19 @@ function openPanel(id) {
       ${impBadge(r.imp)}
       ${friBadge(r.fri)}
       ${validationBadge(r.validation)}
+      <span class="badge pending">${r.lifecycle_stage}</span>
+      <span class="badge pending">${r.priority_bucket}</span>
       ${r.pilot?'<span class="badge pilot">Phase 1 Device B QA Pilot</span>':''}
       ${r.ops?'<span class="ops-chip">✓ Ops Checklist</span>':''}
+    </div>
+    <div class="dp-divider"></div>
+    <div class="detail-grid2">
+      <div class="detail-field"><label>Lifecycle Stage</label><div class="val">${r.lifecycle_stage}</div></div>
+      <div class="detail-field"><label>Validation State</label><div class="val">${r.validation}</div></div>
+      <div class="detail-field"><label>Owner Team</label><div class="val">${r.owner_team}</div></div>
+      <div class="detail-field"><label>Owner Person</label><div class="val">${r.owner_person}</div></div>
+      <div class="detail-field"><label>Priority</label><div class="val">${r.priority_bucket} · Score ${r.priority_score}</div></div>
+      <div class="detail-field"><label>Cross-Team Dependency</label><div class="val">${r.cross_team_dependency}</div></div>
     </div>
     <div class="dp-divider"></div>
     <div class="dp-field">
@@ -2829,6 +2833,10 @@ function openPanel(id) {
     <div class="dp-field">
       <label>Validation Summary</label>
       <div class="dval">${r.evidence}</div>
+    </div>
+    <div class="dp-field">
+      <label>Decision Log</label>
+      <div class="dval">${(r.decision_log || []).map(entry => `• ${entry}`).join('<br>')}</div>
     </div>
     <div class="dp-field">
       <label>Device B Scan Progression</label>
@@ -2972,7 +2980,10 @@ function updateInfoSecItem(id, field, value) {
   infoSecState[id][field] = value;
   saveInfoSecState();
   const item = INFOSEC_ITEMS.find(row => row.id === id);
-  if (item) item[field] = value;
+  if (item) {
+    item[field] = value;
+    item.priority_score = inferInfoSecScore(item.severity, item.priority);
+  }
   persistSharedState();
   render();
 }
@@ -2984,12 +2995,7 @@ async function hydrateSharedState() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const serverState = await res.json();
     infoSecState = { ...infoSecState, ...serverState };
-    INFOSEC_ITEMS.forEach(item => {
-      const state = infoSecState[item.id] || {};
-      if (state.owner) item.owner = state.owner;
-      if (state.priority) item.priority = state.priority;
-      if (typeof state.note === 'string') item.note = state.note;
-    });
+    applyInfoSecStateToItems();
     syncStatus = 'Connected to shared server state';
   } catch {
     syncStatus = 'Shared server unavailable, using local state';
@@ -3017,14 +3023,90 @@ function syncSharedState() {
   persistSharedState();
 }
 
-function exportInfoSecState() {
-  const blob = new Blob([JSON.stringify(infoSecState, null, 2)], { type: 'application/json' });
+function downloadBlob(filename, type, content) {
+  const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'stig-infosec-state.json';
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+function exportInfoSecState() {
+  downloadBlob('stig-infosec-state.json', 'application/json', JSON.stringify(infoSecState, null, 2));
+}
+
+function csvValue(value) {
+  const str = String(value ?? '');
+  return `"${str.replace(/"/g, '""')}"`;
+}
+
+function exportInfoSecCsv() {
+  const rows = getInfoSecRows();
+  const header = [
+    'Control ID',
+    'Benchmark ID',
+    'Title',
+    'Severity',
+    'Priority',
+    'Priority Score',
+    'Lifecycle Stage',
+    'Owner Team',
+    'Owner Person',
+    'Best Deployment Path',
+    'Why It Matters',
+    'Detail About The Finding',
+    'Note'
+  ];
+  const lines = [
+    header.map(csvValue).join(','),
+    ...rows.map(item => [
+      item.id,
+      item.ruleId,
+      item.title,
+      item.severity,
+      item.priority,
+      item.priority_score,
+      item.lifecycle_stage,
+      item.owner,
+      item.owner_person,
+      item.method,
+      item.why,
+      item.finding,
+      item.note
+    ].map(csvValue).join(','))
+  ];
+  downloadBlob('stig-operations-backlog.csv', 'text/csv;charset=utf-8', lines.join('\r\n'));
+}
+
+function exportInfoSecMarkdown() {
+  const rows = getInfoSecRows();
+  const lines = [
+    '# STIG Operations Backlog Summary',
+    '',
+    `Exported: ${new Date().toLocaleString()}`,
+    `Visible findings: ${rows.length}`,
+    `High severity: ${rows.filter(r => r.severity === 'High').length}`,
+    `High priority: ${rows.filter(r => r.priority === 'High').length}`,
+    ''
+  ];
+  rows.forEach(item => {
+    lines.push(`## ${item.id} - ${item.title}`);
+    lines.push('');
+    lines.push(`- Benchmark ID: ${item.ruleId}`);
+    lines.push(`- Severity: ${item.severity}`);
+    lines.push(`- Priority: ${item.priority} (${item.priority_score})`);
+    lines.push(`- Lifecycle Stage: ${item.lifecycle_stage}`);
+    lines.push(`- Accountable Team: ${item.owner}`);
+    lines.push(`- Owner Person: ${item.owner_person || 'Unassigned'}`);
+    lines.push(`- Best Deployment Path: ${item.method}`);
+    lines.push(`- Why It Matters: ${item.why}`);
+    lines.push(`- Detail About The Finding: ${item.finding}`);
+    lines.push(`- Note: ${item.note || 'None'}`);
+    lines.push('');
+  });
+  downloadBlob('stig-operations-backlog.md', 'text/markdown;charset=utf-8', lines.join('\n'));
 }
 
 function importInfoSecState(event) {
@@ -3036,12 +3118,7 @@ function importInfoSecState(event) {
       const parsed = JSON.parse(String(reader.result || '{}'));
       infoSecState = { ...infoSecState, ...parsed };
       saveInfoSecState();
-      INFOSEC_ITEMS.forEach(item => {
-        const state = infoSecState[item.id] || {};
-        if (state.owner) item.owner = state.owner;
-        if (state.priority) item.priority = state.priority;
-        if (typeof state.note === 'string') item.note = state.note;
-      });
+      applyInfoSecStateToItems();
       syncStatus = 'Imported JSON state';
       persistSharedState();
       render();
