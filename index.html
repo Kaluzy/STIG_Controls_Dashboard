@@ -1822,7 +1822,8 @@ const LIFECYCLE_OPTIONS = CONTROL_CONFIG.lifecycleOptions || [
   'Ready for Test',
   'Implemented in Lab',
   'Smoke Tested',
-  'QA Requested',
+  'Ready for QA',
+  'QA In Progress',
   'QA Passed',
   'RFC Ready',
   'Released',
@@ -1852,7 +1853,7 @@ const inferInfoSecFocus = (ruleId, title) => (INFOSEC_CONTENT.inferFocus || (() 
 function defaultLifecycleStage(row) {
   if (row.validation === 'Failed') return 'Ready for Test';
   if (row.validation === 'Partial') return row.pilot ? 'Smoke Tested' : 'Owner Assigned';
-  if (row.validation === 'Proven') return row.pilot ? 'QA Passed' : 'Implemented in Lab';
+  if (row.validation === 'Proven') return row.pilot ? 'Smoke Tested' : 'Implemented in Lab';
   return row.tier === 'Tier 3' ? 'Deferred' : 'Candidate';
 }
 
@@ -1864,7 +1865,7 @@ function defaultReleaseStatus(row, lifecycleStage) {
 }
 
 function defaultQaStatus(row) {
-  if (row.validation === 'Proven') return 'Passed';
+  if (row.validation === 'Proven') return 'Not Started';
   if (row.validation === 'Failed') return 'Blocked';
   return 'Needs Review';
 }
@@ -2048,30 +2049,30 @@ function applyInfoSecStateToItems() {
 }
 
 const READINESS_META = {
-  "V-253358": { stage:"QA Passed", next:"Ready for pilot ring", blocker:"None", qa:"Passed", rollback:"Low risk revert", lane:"Ready" },
+  "V-253358": { stage:"Smoke Tested", next:"Hand off to QA for pilot validation", blocker:"None", qa:"Not Started", rollback:"Low risk revert", lane:"QA" },
   "V-253285": { stage:"Initial EUC / InfoSec Testing", next:"Confirm NA handling in SCC narrative", blocker:"Benchmark interpretation", qa:"Needs review", rollback:"Not needed if absent", lane:"QA" },
-  "V-253367": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Low risk revert", lane:"Ready" },
-  "V-253414": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Low risk revert", lane:"Ready" },
-  "V-253354": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Low risk revert", lane:"Ready" },
-  "V-253353": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Low risk revert", lane:"Ready" },
+  "V-253367": { stage:"Smoke Tested", next:"Hand off to QA for pilot validation", blocker:"None", qa:"Not Started", rollback:"Low risk revert", lane:"QA" },
+  "V-253414": { stage:"Smoke Tested", next:"Hand off to QA for pilot validation", blocker:"None", qa:"Not Started", rollback:"Low risk revert", lane:"QA" },
+  "V-253354": { stage:"Smoke Tested", next:"Hand off to QA for pilot validation", blocker:"None", qa:"Not Started", rollback:"Low risk revert", lane:"QA" },
+  "V-253353": { stage:"Smoke Tested", next:"Hand off to QA for pilot validation", blocker:"None", qa:"Not Started", rollback:"Low risk revert", lane:"QA" },
   "V-253370": { stage:"Initial EUC / InfoSec Testing", next:"Confirm proof versus already-passing baseline", blocker:"Ownership of proof narrative", qa:"Needs review", rollback:"Low risk revert", lane:"QA" },
-  "V-253371 / V-253426": { stage:"QA Requested", next:"Resolve VBS split before sign-off", blocker:"VBS regression", qa:"Blocked", rollback:"Hardware policy rollback available", lane:"Hold" },
-  "V-253306 / V-253317": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Audit policy revert documented", lane:"Ready" },
-  "V-253319 / V-253324 / V-278926 / V-278931": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Audit policy revert documented", lane:"Ready" },
-  "V-253325 / V-253329 / V-278932 / V-278933": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Audit policy revert documented", lane:"Ready" },
-  "V-253330 / V-253336": { stage:"QA Passed", next:"Carry into pilot ring", blocker:"None", qa:"Passed", rollback:"Audit policy revert documented", lane:"Ready" },
-  "V-253259 / V-253257": { stage:"RFC Ready", next:"Move with pilot device group", blocker:"None", qa:"Passed", rollback:"BitLocker change control required", lane:"Ready" },
-  "V-253337 / V-253339": { stage:"QA Requested", next:"Fix Security log size and rescan", blocker:"Audit log sizing defect", qa:"Blocked", rollback:"Simple config revert", lane:"Hold" }
+  "V-253371 / V-253426": { stage:"Ready for Test", next:"Resolve VBS split before sign-off", blocker:"VBS regression", qa:"Blocked", rollback:"Hardware policy rollback available", lane:"Hold" },
+  "V-253306 / V-253317": { stage:"Smoke Tested", next:"Hand off to QA for pilot validation", blocker:"None", qa:"Not Started", rollback:"Audit policy revert documented", lane:"QA" },
+  "V-253319 / V-253324 / V-278926 / V-278931": { stage:"Smoke Tested", next:"Hand off to QA for pilot validation", blocker:"None", qa:"Not Started", rollback:"Audit policy revert documented", lane:"QA" },
+  "V-253325 / V-253329 / V-278932 / V-278933": { stage:"Smoke Tested", next:"Hand off to QA for pilot validation", blocker:"None", qa:"Not Started", rollback:"Audit policy revert documented", lane:"QA" },
+  "V-253330 / V-253336": { stage:"Smoke Tested", next:"Hand off to QA for pilot validation", blocker:"None", qa:"Not Started", rollback:"Audit policy revert documented", lane:"QA" },
+  "V-253259 / V-253257": { stage:"Smoke Tested", next:"Hand off to QA for pilot validation", blocker:"None", qa:"Not Started", rollback:"BitLocker change control required", lane:"QA" },
+  "V-253337 / V-253339": { stage:"Ready for Test", next:"Fix Security log size and rescan", blocker:"Audit log sizing defect", qa:"Blocked", rollback:"Simple config revert", lane:"Hold" }
 };
 
 const READINESS_ITEMS = D.filter(r => r.pilot || r.validation === 'Failed').map(r => ({
   ...r,
-  stage: (READINESS_META[r.id] || {}).stage || (r.validation === 'Proven' ? 'QA Passed' : r.validation === 'Partial' ? 'Initial EUC / InfoSec Testing' : 'QA Requested'),
+  stage: (READINESS_META[r.id] || {}).stage || (r.validation === 'Proven' ? 'Smoke Tested' : r.validation === 'Partial' ? 'Initial EUC / InfoSec Testing' : 'Ready for Test'),
   next: (READINESS_META[r.id] || {}).next || 'Review and assign the next stage',
   blocker: (READINESS_META[r.id] || {}).blocker || 'None',
-  qa: (READINESS_META[r.id] || {}).qa || (r.validation === 'Proven' ? 'Passed' : 'Needs review'),
+  qa: (READINESS_META[r.id] || {}).qa || (r.validation === 'Proven' ? 'Not Started' : 'Needs review'),
   rollback: (READINESS_META[r.id] || {}).rollback || 'Rollback note needed',
-  lane: (READINESS_META[r.id] || {}).lane || (r.validation === 'Proven' ? 'Ready' : r.validation === 'Partial' ? 'QA' : 'Hold')
+  lane: (READINESS_META[r.id] || {}).lane || (r.validation === 'Proven' ? 'QA' : r.validation === 'Partial' ? 'QA' : 'Hold')
 }));
 
 /* populate category filter */
