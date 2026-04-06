@@ -1793,6 +1793,7 @@ body {
 <script src="./data/infosec-content.js"></script>
 <script src="./data/view-meta.js"></script>
 <script src="./data/reference-sources.js"></script>
+<script src="./data/generated/latest-baseline-data.js"></script>
 <script>
 /* ══════════════════════════════════════
    DATA
@@ -1982,7 +1983,12 @@ function inferInfoSecScore(severity, priority) {
   return sev * 10 + pri * 5;
 }
 
-const INFOSEC_SOURCE = Array.isArray(window.BASELINE_FAILED) && window.BASELINE_FAILED.length ? window.BASELINE_FAILED : BASELINE_FAILED;
+const INFOSEC_SOURCE =
+  Array.isArray(window.GENERATED_BASELINE_FAILED) && window.GENERATED_BASELINE_FAILED.length
+    ? window.GENERATED_BASELINE_FAILED
+    : Array.isArray(window.BASELINE_FAILED) && window.BASELINE_FAILED.length
+      ? window.BASELINE_FAILED
+      : BASELINE_FAILED;
 
 const INFOSEC_ITEMS = INFOSEC_SOURCE.map(item => {
   const primaryId = item.VId || item.VulnId || item.RuleId;

@@ -21,5 +21,34 @@ Use the following folders for the future ingestion flow:
 
 ## Current state
 
-This folder structure is a project scaffold only.
-The automated parser is not implemented yet.
+The first parser utility now exists.
+
+## Current parser
+
+- [tools/parse-xccdf.ps1](/c:/Users/kaluz/OneDrive/Documents/AI%20Playground/STIG-Pilot-Dashboard/tools/parse-xccdf.ps1)
+
+### What it does
+
+- reads the latest XML in `scans/inbox/` or a specific file path
+- parses benchmark title, version, device, timestamp, and rule results
+- writes:
+  - `data/generated/latest-scan-results.json`
+  - `data/generated/latest-baseline-failed.json`
+  - `data/generated/latest-baseline-data.js`
+  - `data/generated/scans/<scan-id>.json`
+
+### Why it matters
+
+The dashboard now prefers `data/generated/latest-baseline-data.js` when it exists, so a parsed scan can update the Operations Backlog without hand-editing the page.
+
+## Run command
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\parse-xccdf.ps1
+```
+
+## Specific file example
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\parse-xccdf.ps1 -InputPath ".\scans\inbox\device-b\2026-04-01\windows11-xccdf.xml"
+```

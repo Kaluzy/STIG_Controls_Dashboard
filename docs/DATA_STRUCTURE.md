@@ -53,6 +53,9 @@ This app now separates presentation from project data and operating rules.
 - `data/examples/normalized-scan-result.example.json`
   - example output shape for future parser work
 
+- `data/generated/`
+  - parser outputs consumed by the dashboard when available
+
 ## What still lives in `index.html`
 
 - rendering logic
