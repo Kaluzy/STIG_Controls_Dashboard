@@ -34,12 +34,25 @@ The first parser utility now exists.
 - writes:
   - `data/generated/latest-scan-results.json`
   - `data/generated/latest-baseline-failed.json`
+  - `data/generated/latest-scan-delta.json`
   - `data/generated/latest-baseline-data.js`
   - `data/generated/scans/<scan-id>.json`
 
 ### Why it matters
 
 The dashboard now prefers `data/generated/latest-baseline-data.js` when it exists, so a parsed scan can update the Operations Backlog without hand-editing the page.
+The parser also generates a delta summary against the prior scan for the same device and benchmark when one exists.
+
+### Delta classifications
+
+- `regressed`
+  - previous `pass` -> current `fail`
+- `fixed`
+  - previous `fail` -> current `pass`
+- `new_fail`
+  - no prior fail, current is `fail`
+- `unchanged`
+  - no meaningful status transition
 
 ## Run command
 

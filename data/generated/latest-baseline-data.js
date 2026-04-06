@@ -1,2 +1,3 @@
 window.GENERATED_BASELINE_FAILED = null;
 window.GENERATED_SCAN_RESULTS = null;
+window.GENERATED_SCAN_DELTA = null;

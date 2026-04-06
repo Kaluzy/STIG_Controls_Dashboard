@@ -81,6 +81,70 @@ function Build-JavaScriptArray {
     return "window.$VariableName = $json;"
 }
 
+function Get-ResultKey {
+    param([object]$Result)
+    if ($Result.control_id) { return [string]$Result.control_id }
+    if ($Result.rule_id) { return [string]$Result.rule_id }
+    return $null
+}
+
+function Compare-ScanResults {
+    param(
+        [object[]]$CurrentResults,
+        [object[]]$PreviousResults
+    )
+
+    $previousIndex = @{}
+    foreach ($prev in @($PreviousResults)) {
+        $key = Get-ResultKey -Result $prev
+        if (-not $key) { continue }
+        $previousIndex[$key] = $prev
+    }
+
+    $regressed = @()
+    $fixed = @()
+    $newFail = @()
+    $unchanged = @()
+
+    foreach ($curr in @($CurrentResults)) {
+        $key = Get-ResultKey -Result $curr
+        if (-not $key) { continue }
+
+        $prev = $null
+        if ($previousIndex.ContainsKey($key)) {
+            $prev = $previousIndex[$key]
+        }
+
+        $prevStatus = if ($prev) { [string]$prev.status } else { $null }
+        $currStatus = [string]$curr.status
+
+        $entry = [pscustomobject]@{
+            control_id       = $curr.control_id
+            rule_id          = $curr.rule_id
+            title            = $curr.title
+            previous_status  = $prevStatus
+            current_status   = $currStatus
+        }
+
+        if ($prevStatus -eq 'pass' -and $currStatus -eq 'fail') {
+            $regressed += $entry
+        } elseif ($prevStatus -eq 'fail' -and $currStatus -eq 'pass') {
+            $fixed += $entry
+        } elseif (($null -eq $prevStatus -or $prevStatus -ne 'fail') -and $currStatus -eq 'fail') {
+            $newFail += $entry
+        } else {
+            $unchanged += $entry
+        }
+    }
+
+    return [pscustomobject]@{
+        regressed = @($regressed)
+        fixed = @($fixed)
+        new_fail = @($newFail)
+        unchanged = @($unchanged)
+    }
+}
+
 if (-not $InputPath) {
     $InputPath = Get-LatestXmlFile -Root $InboxRoot
 }
@@ -160,18 +224,67 @@ $scanDir = Join-Path $OutputRoot 'scans'
 $latestJsonPath = Join-Path $OutputRoot 'latest-scan-results.json'
 $latestJsPath = Join-Path $OutputRoot 'latest-baseline-data.js'
 $latestFailedJsonPath = Join-Path $OutputRoot 'latest-baseline-failed.json'
+$latestDeltaJsonPath = Join-Path $OutputRoot 'latest-scan-delta.json'
 $scanJsonPath = Join-Path $scanDir "$scanId.json"
 
 New-Item -ItemType Directory -Force -Path $OutputRoot | Out-Null
 New-Item -ItemType Directory -Force -Path $scanDir | Out-Null
 
+$previousScan = $null
+$priorScanFiles = Get-ChildItem -LiteralPath $scanDir -File -Filter *.json -ErrorAction SilentlyContinue |
+    Where-Object { $_.BaseName -ne $scanId } |
+    Sort-Object LastWriteTime -Descending
+
+foreach ($candidate in $priorScanFiles) {
+    try {
+        $parsedCandidate = Get-Content -LiteralPath $candidate.FullName -Raw | ConvertFrom-Json
+        if ($parsedCandidate.device_id -eq $deviceId -and $parsedCandidate.benchmark -eq $benchmarkTitle) {
+            $previousScan = $parsedCandidate
+            break
+        }
+    } catch {
+        continue
+    }
+}
+
+$delta = [pscustomobject]@{
+    scan_id = $scanId
+    device_id = $deviceId
+    benchmark = $benchmarkTitle
+    previous_scan_id = if ($previousScan) { $previousScan.scan_id } else { $null }
+    summary = [pscustomobject]@{
+        regressed = 0
+        fixed = 0
+        new_fail = 0
+        unchanged = $ruleResults.Count
+    }
+    regressed = @()
+    fixed = @()
+    new_fail = @()
+    unchanged = @()
+}
+
+if ($previousScan) {
+    $compared = Compare-ScanResults -CurrentResults $ruleResults -PreviousResults @($previousScan.results)
+    $delta.summary.regressed = @($compared.regressed).Count
+    $delta.summary.fixed = @($compared.fixed).Count
+    $delta.summary.new_fail = @($compared.new_fail).Count
+    $delta.summary.unchanged = @($compared.unchanged).Count
+    $delta.regressed = @($compared.regressed)
+    $delta.fixed = @($compared.fixed)
+    $delta.new_fail = @($compared.new_fail)
+    $delta.unchanged = @($compared.unchanged)
+}
+
 (ConvertTo-Json -InputObject @($normalized) -Depth 8) | Set-Content -LiteralPath $latestJsonPath -Encoding UTF8
 (ConvertTo-Json -InputObject @($normalized) -Depth 8) | Set-Content -LiteralPath $scanJsonPath -Encoding UTF8
 (ConvertTo-Json -InputObject @($failedControls) -Depth 6) | Set-Content -LiteralPath $latestFailedJsonPath -Encoding UTF8
+(ConvertTo-Json -InputObject $delta -Depth 8) | Set-Content -LiteralPath $latestDeltaJsonPath -Encoding UTF8
 
 $js = @(
     (Build-JavaScriptArray -VariableName 'GENERATED_SCAN_RESULTS' -Value @($normalized)),
-    (Build-JavaScriptArray -VariableName 'GENERATED_BASELINE_FAILED' -Value @($failedControls))
+    (Build-JavaScriptArray -VariableName 'GENERATED_BASELINE_FAILED' -Value @($failedControls)),
+    (Build-JavaScriptArray -VariableName 'GENERATED_SCAN_DELTA' -Value $delta)
 ) -join "`r`n"
 Set-Content -LiteralPath $latestJsPath -Value $js -Encoding UTF8
 
@@ -179,5 +292,11 @@ Write-Host "Parsed XCCDF result:"
 Write-Host "  Input: $resolvedInput"
 Write-Host "  Scan ID: $scanId"
 Write-Host "  Failed controls: $($failedControls.Count)"
+if ($previousScan) {
+    Write-Host "  Previous scan: $($previousScan.scan_id)"
+    Write-Host "  Regressed: $($delta.summary.regressed) | Fixed: $($delta.summary.fixed) | New fail: $($delta.summary.new_fail)"
+} else {
+    Write-Host "  Previous scan: none"
+}
 Write-Host "  Output JSON: $latestJsonPath"
 Write-Host "  Output JS: $latestJsPath"

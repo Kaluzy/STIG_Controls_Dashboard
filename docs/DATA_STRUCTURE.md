@@ -55,6 +55,7 @@ This app now separates presentation from project data and operating rules.
 
 - `data/generated/`
   - parser outputs consumed by the dashboard when available
+  - includes latest normalized scan data and latest scan delta output
 
 ## What still lives in `index.html`
 
